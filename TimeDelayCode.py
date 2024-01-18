@@ -42,7 +42,7 @@ def find_time_delay(input_signals, output_signal, sampling_rate):
 
     # Calculate overall time delay for each channel
     for channel in range(num_channels):
-        # Extract the input signal for the current channel
+        # Extract the input signal for the current channel..
         input_channel = input_signals_array[:, channel]
 
         # Compute cross-correlation between the input channel and the output signal
