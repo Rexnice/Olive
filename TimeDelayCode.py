@@ -201,7 +201,7 @@ def perform_time_delay_estimation(file_path):
         estimated_LSTM = lstm_time_delay(input_signals, output_signal, epochs=50, batch_size=32)
 
 
-        def calculate_score(time_delay, target_delay=6):
+        def calculate_score(time_delay, target_delay=4):
             # Calculate a score based on how close the time delay is to the target delay (6 seconds in this case)
             return np.abs(target_delay - time_delay)
 
@@ -210,16 +210,17 @@ def perform_time_delay_estimation(file_path):
             # Extract parameters for optimization
             overall_time_delay, estimated_time_delay, estimated_Linear_time_delay, estimated_ARXtime_delay = params
 
-            # Calculate scores for each method
-            scores = [
-                calculate_score(overall_time_delay),
-                calculate_score(estimated_time_delay),
-                calculate_score(estimated_Linear_time_delay),
-                calculate_score(estimated_ARXtime_delay)
-            ]
 
+             # Calculate squared differences between estimated and actual delays
+            squared_diff = [
+                (overall_time_delay - find_time_delay(input_signals, output_signal, sampling_rate))**2,
+                (estimated_time_delay - polynomial_regression_time_delay(input_signals, output_signal, degree))**2,
+                (estimated_Linear_time_delay - linear_regression_time_delay(input_signals, output_signal))**2,
+                (estimated_ARXtime_delay - arx_modeling_time_delay(input_signals, output_signal, order))**2
+            ]
+            
             # Sum of scores, aiming to minimize the total score
-            return sum(scores)
+            return sum(squared_diff)
 
         # Initial guesses for the time delays
         initial_guesses = [1, 1, 1, 1]
