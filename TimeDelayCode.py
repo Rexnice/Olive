@@ -223,7 +223,7 @@ def perform_time_delay_estimation(file_path):
             return sum(squared_diff)
 
         # Initial guesses for the time delays
-        initial_guesses = [1, 1, 1, 1]
+        initial_guesses = [0, 0, 0, 0]
 
         # Define bounds for the time delays (non-negative)
         bounds = [(0, None), (0, None), (0, None), (0, None)]
@@ -278,7 +278,12 @@ def perform_time_delay_estimation(file_path):
 data = [
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds2.csv',
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds3.csv',
+    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds4.csv',
+    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds5.csv',
+    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds6.csv',
+    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds7.csv',
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds8.csv',
+    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds9.csv',
 ]
 
 perform_time_delay_estimation(data)
