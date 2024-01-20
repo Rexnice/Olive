@@ -15,18 +15,15 @@ from sklearn.preprocessing import MinMaxScaler
 
 def perform_time_delay_estimation(file_path):
     for datas in file_path:
-        # Read the CSV file
+        # Read the CSV files from the file_path
         data = pd.read_csv(datas)
 
-        # Importing the dataset and splitting into input_signal and output_signal
-        #input_columns = ['input1', 'input1.1', 'input1.2', 'input1.3', 'input1.4']
-        #input_columns = ['input1', 'input1.1', 'input1.2', 'input1.3', 'input1.4']
-        
-        input_columns = ['in1', 'in2', 'in3']
+        # Importing the dataset and splitting into input_signal and output_signal        
+        input_columns = ['in1', 'in2', 'in3', 'in4']
         output_column = ['out1']
 
-        sampling_rate = 2000  # The sampling rate is as shown in the dataset
-        degree = 2  # Degree of the polynomial regression
+        sampling_rate = 2000  # The sampling rate between the input and output signals
+        degree = 2  # Degree of the polynomial regression Model
         order = 2 # Order of ARX model
 
         input_signals = data[input_columns]
@@ -198,7 +195,7 @@ def perform_time_delay_estimation(file_path):
         estimated_time_delay = polynomial_regression_time_delay(input_signals, output_signal, degree)
         estimated_Linear_time_delay = linear_regression_time_delay(input_signals, output_signal)
         estimated_ARXtime_delay = arx_modeling_time_delay(input_signals, output_signal, order)
-        estimated_LSTM = lstm_time_delay(input_signals, output_signal, epochs=50, batch_size=32)
+        estimated_LSTM = lstm_time_delay(input_signals, output_signal, epochs=100, batch_size=20)
 
 
         def calculate_score(time_delay, target_delay=4):
@@ -223,7 +220,7 @@ def perform_time_delay_estimation(file_path):
             return sum(squared_diff)
 
         # Initial guesses for the time delays
-        initial_guesses = [0, 0, 0, 0]
+        initial_guesses = [1, 1, 1, 1]
 
         # Define bounds for the time delays (non-negative)
         bounds = [(0, None), (0, None), (0, None), (0, None)]
@@ -237,14 +234,14 @@ def perform_time_delay_estimation(file_path):
         estimated_Linear_time_delay_opt = result.x[2]
         estimated_ARXtime_delay_opt = result.x[3]
 
-        # Choose the method with the best time delay based on the optimization results
-        optimal_delays = [overall_time_delay_opt, estimated_time_delay_opt, estimated_Linear_time_delay_opt, estimated_ARXtime_delay_opt]
-        best_method_index_opt = np.argmin(optimal_delays)
 
-
-        # Choose the method with the best time delay, for this case closer to 6 secs
+        # Choose the method with the best time delay
         delays = [overall_time_delay, estimated_time_delay, estimated_Linear_time_delay, estimated_ARXtime_delay]
         best_method_index = np.argmax(delays)
+
+        # Choose the method with the best time delay based on the optimization results
+        optimal_delays = [overall_time_delay_opt, estimated_time_delay_opt, estimated_Linear_time_delay_opt, estimated_ARXtime_delay_opt]
+        best_method_index_opt = np.argmax(optimal_delays)
 
 
         # Add LSTM method
@@ -280,15 +277,17 @@ data = [
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds3.csv',
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds4.csv',
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds5.csv',
-    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds6.csv',
-    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds7.csv',
-    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds8.csv',
-    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds9.csv',
+
 ]
 
 perform_time_delay_estimation(data)
 
-
+"""
+    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds6.csv',
+    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds7.csv',
+    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds8.csv',
+    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds9.csv',
+"""
 
 
 
