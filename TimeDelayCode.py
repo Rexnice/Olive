@@ -13,15 +13,17 @@ from keras.layers import LSTM, Dense
 from sklearn.preprocessing import MinMaxScaler
 
 
-def perform_time_delay_estimation(file_path):
-    for datas in file_path:
+def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output_signals_list):
+    for file_path, num_input_signals, num_output_signals in zip(file_paths, num_input_signals_list, num_output_signals_list):
         # Read the CSV files from the file_path
-        data = pd.read_csv(datas)
+        data = pd.read_csv(file_path)
+        
 
         # Importing the dataset and splitting into input_signal and output_signal        
-        input_columns = ['in1', 'in2', 'in3', 'in4']
-        output_columns = ['out1', 'out2']
+        input_columns = [f'in{i}' for i in range(1, num_input_signals + 1)]
+        output_columns = [f'out{i}' for i in range(1, num_output_signals + 1)]
 
+        #Defining Parameters    
         sampling_rate = 2000  # The sampling rate between the input and output signals
         degree = 2  # Degree of the polynomial regression Model
         order = 2 # Order of ARX model
@@ -29,7 +31,6 @@ def perform_time_delay_estimation(file_path):
         input_signals = data[input_columns]
 
         for output_col in output_columns:
-            print("##########################################################################################################################################")
             print(f"Time Delay Estimation for {output_col}, with respect to all Input Signal")
             output_signal = data[output_col]
         
@@ -129,9 +130,11 @@ def perform_time_delay_estimation(file_path):
 
                     # The time delay is proportional to the slope
                     time_delays[channel] = -intercept / slope
+                    delay = []
+                    delay.append(time_delays[channel])
 
                 # Return the Maximum time delay across all channels
-                return np.argmax(time_delays)
+                return np.argmax(delay)
 
             def arx_modeling_time_delay(input_signals, output_signal, order):
                 input_signals_array = input_signals.to_numpy()
@@ -199,7 +202,7 @@ def perform_time_delay_estimation(file_path):
             estimated_time_delay = polynomial_regression_time_delay(input_signals, output_signal, degree)
             estimated_Linear_time_delay = linear_regression_time_delay(input_signals, output_signal)
             estimated_ARXtime_delay = arx_modeling_time_delay(input_signals, output_signal, order)
-            estimated_LSTM = lstm_time_delay(input_signals, output_signal, epochs=100, batch_size=20)
+            estimated_LSTM = lstm_time_delay(input_signals, output_signal, epochs=100, batch_size=25)
 
 
             def calculate_score(time_delay, target_delay=4):
@@ -224,7 +227,7 @@ def perform_time_delay_estimation(file_path):
                 return sum(squared_diff)
 
             # Initial guesses for the time delays
-            initial_guesses = [1, 1, 1, 1]
+            initial_guesses = [0, 0, 0, 0]
 
             # Define bounds for the time delays (non-negative)
             bounds = [(0, None), (0, None), (0, None), (0, None)]
@@ -241,11 +244,11 @@ def perform_time_delay_estimation(file_path):
 
             # Choose the method with the best time delay
             delays = [overall_time_delay, estimated_time_delay, estimated_Linear_time_delay, estimated_ARXtime_delay]
-            best_method_index = np.argmax(delays)
+            best_method_index = np.argmin(delays)
 
             # Choose the method with the best time delay based on the optimization results
             optimal_delays = [overall_time_delay_opt, estimated_time_delay_opt, estimated_Linear_time_delay_opt, estimated_ARXtime_delay_opt]
-            best_method_index_opt = np.argmax(optimal_delays)
+            best_method_index_opt = np.argmin(optimal_delays)
 
 
             # Add LSTM method
@@ -275,6 +278,25 @@ def perform_time_delay_estimation(file_path):
 
 # List of file paths
 data = [
+    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds10.csv',
+
+
+
+]
+
+
+# Specify the number of input and output signals for each CSV file
+num_input_signals_list = [4]        #This list specifies the number of input signals each dataframe takes, so index 0 is for ds1.csv and so on
+num_output_signals_list = [8]      #This list specifies the number of output signals each dataframe takes, so index 0 is for ds1.csv and so on
+
+perform_time_delay_estimation(data, num_input_signals_list, num_output_signals_list)
+
+
+
+
+"""
+perform_time_delay_estimation(data)
+
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds2.csv',
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds3.csv',
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds4.csv',
@@ -283,10 +305,4 @@ data = [
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds7.csv',
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds8.csv',
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds9.csv',
-
-]
-
-perform_time_delay_estimation(data)
-
-
-
+"""
