@@ -31,7 +31,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
         input_signals = data[input_columns]
 
         for output_col in output_columns:
-            print(f"Time Delay Estimation for {output_col}, with respect to all Input Signal")
+            print(f"Time Delay Estimation for {output_col}, with respect to DataFrame {file_path}")
             output_signal = data[output_col]
         
             for input_col, output_col in zip(input_signals, output_signal):
@@ -77,8 +77,8 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     # Calculate the time delay in seconds
                     time_delays[channel] = max_corr_index / sampling_rate
 
-                # Return the maximum time delay across all channels
-                return np.argmax(time_delays)
+                # Return the minimum time delay across all channels
+                return np.argmin(time_delays)
 
             def polynomial_regression_time_delay(input_signals, output_signal, degree):
                 input_signals_array = input_signals.to_numpy()
@@ -100,8 +100,8 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     # The time delay is proportional to the coefficient of the highest-degree term
                     time_delays[channel] = -coeffs[-2] / (degree * coeffs[-1])
 
-                # Return the Maximum time delay across all channels
-                return np.argmax(time_delays)
+                # Return the Minimum time delay across all channels
+                return np.argmin(time_delays)
 
             def linear_regression_time_delay(input_signals, output_signal):
                 # Convert input and output signals to NumPy arrays
@@ -130,11 +130,9 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
 
                     # The time delay is proportional to the slope
                     time_delays[channel] = -intercept / slope
-                    delay = []
-                    delay.append(time_delays[channel])
 
-                # Return the Maximum time delay across all channels
-                return np.argmax(delay)
+                # Return the Minimum time delay across all channels
+                return np.argmin(time_delays)
 
             def arx_modeling_time_delay(input_signals, output_signal, order):
                 input_signals_array = input_signals.to_numpy()
@@ -165,10 +163,10 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     # The time delay is proportional to the coefficient of the first input
                     time_delays[channel] = -coefficients[0] / coefficients[1]
 
-                # Return the Maximum time delay across all channels
-                return np.argmax(time_delays)
+                # Return the Minimum time delay across all channels
+                return np.argmin(time_delays)
 
-            def lstm_time_delay(input_signals, output_signal, epochs=60, batch_size=32):
+            def lstm_time_delay(input_signals, output_signal, epochs=100, batch_size=32):
                 # Normalize input and output data
                 scaler = MinMaxScaler(feature_range=(0, 1))
                 input_signals_scaled = scaler.fit_transform(input_signals)
@@ -204,11 +202,12 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             estimated_ARXtime_delay = arx_modeling_time_delay(input_signals, output_signal, order)
             estimated_LSTM = lstm_time_delay(input_signals, output_signal, epochs=100, batch_size=25)
 
+            """
 
             def calculate_score(time_delay, target_delay=4):
                 # Calculate a score based on how close the time delay is to the target delay (6 seconds in this case)
                 return np.abs(target_delay - time_delay)
-
+            """            
             # Function to optimize
             def objective_function(params):
                 # Extract parameters for optimization
@@ -244,11 +243,11 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
 
             # Choose the method with the best time delay
             delays = [overall_time_delay, estimated_time_delay, estimated_Linear_time_delay, estimated_ARXtime_delay]
-            best_method_index = np.argmin(delays)
+            best_method_index = np.argmax(delays)
 
             # Choose the method with the best time delay based on the optimization results
             optimal_delays = [overall_time_delay_opt, estimated_time_delay_opt, estimated_Linear_time_delay_opt, estimated_ARXtime_delay_opt]
-            best_method_index_opt = np.argmin(optimal_delays)
+            best_method_index_opt = np.argmax(optimal_delays)
 
 
             # Add LSTM method
@@ -278,25 +277,8 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
 
 # List of file paths
 data = [
-    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds10.csv',
 
-
-
-]
-
-
-# Specify the number of input and output signals for each CSV file
-num_input_signals_list = [4]        #This list specifies the number of input signals each dataframe takes, so index 0 is for ds1.csv and so on
-num_output_signals_list = [8]      #This list specifies the number of output signals each dataframe takes, so index 0 is for ds1.csv and so on
-
-perform_time_delay_estimation(data, num_input_signals_list, num_output_signals_list)
-
-
-
-
-"""
-perform_time_delay_estimation(data)
-
+    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds1.csv',
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds2.csv',
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds3.csv',
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds4.csv',
@@ -305,4 +287,13 @@ perform_time_delay_estimation(data)
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds7.csv',
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds8.csv',
     'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds9.csv',
-"""
+    'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/ds10.csv',
+
+]
+
+
+# Specify the number of input and output signals for each CSV file
+num_input_signals_list = [4, 4, 4, 4, 4, 5, 6, 6, 7, 6]          #This list specifies the number of input signals each dataframe takes, so index 0 is for ds1.csv and so on
+num_output_signals_list = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]         #This list specifies the number of output signals each dataframe takes, so index 0 is for ds1.csv and so on
+
+perform_time_delay_estimation(data, num_input_signals_list, num_output_signals_list)
