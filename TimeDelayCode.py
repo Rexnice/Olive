@@ -77,8 +77,8 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     # Calculate the time delay in seconds
                     time_delays[channel] = max_corr_index / sampling_rate
 
-                # Return the minimum time delay across all channels
-                return np.argmin(time_delays)
+                # Return the maximum time delay across all channels
+                return np.argmax(time_delays)
 
             def polynomial_regression_time_delay(input_signals, output_signal, degree):
                 input_signals_array = input_signals.to_numpy()
@@ -100,8 +100,8 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     # The time delay is proportional to the coefficient of the highest-degree term
                     time_delays[channel] = -coeffs[-2] / (degree * coeffs[-1])
 
-                # Return the Minimum time delay across all channels
-                return np.argmin(time_delays)
+                # Return the Maximum time delay across all channels
+                return np.argmax(time_delays)
 
             def linear_regression_time_delay(input_signals, output_signal):
                 # Convert input and output signals to NumPy arrays
@@ -131,8 +131,8 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     # The time delay is proportional to the slope
                     time_delays[channel] = -intercept / slope
 
-                # Return the Minimum time delay across all channels
-                return np.argmin(time_delays)
+                # Return the Maximum time delay across all channels
+                return np.argmax(time_delays)
 
             def arx_modeling_time_delay(input_signals, output_signal, order):
                 input_signals_array = input_signals.to_numpy()
@@ -163,8 +163,8 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     # The time delay is proportional to the coefficient of the first input
                     time_delays[channel] = -coefficients[0] / coefficients[1]
 
-                # Return the Minimum time delay across all channels
-                return np.argmin(time_delays)
+                # Return the Maximum time delay across all channels
+                return np.argmax(time_delays)
 
             def lstm_time_delay(input_signals, output_signal, epochs=100, batch_size=32):
                 # Normalize input and output data
@@ -196,8 +196,8 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                 return time_delay
             
 
-            overall_time_delay = find_time_delay(input_signals, output_signal, sampling_rate)
-            estimated_time_delay = polynomial_regression_time_delay(input_signals, output_signal, degree)
+            estimated_time_delay_CrossCorr = find_time_delay(input_signals, output_signal, sampling_rate)
+            estimated_time_delay_poly = polynomial_regression_time_delay(input_signals, output_signal, degree)
             estimated_Linear_time_delay = linear_regression_time_delay(input_signals, output_signal)
             estimated_ARXtime_delay = arx_modeling_time_delay(input_signals, output_signal, order)
             estimated_LSTM = lstm_time_delay(input_signals, output_signal, epochs=100, batch_size=25)
@@ -211,13 +211,13 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             # Function to optimize
             def objective_function(params):
                 # Extract parameters for optimization
-                overall_time_delay, estimated_time_delay, estimated_Linear_time_delay, estimated_ARXtime_delay = params
+                estimated_time_delay_CrossCorr, estimated_time_delay_poly, estimated_Linear_time_delay, estimated_ARXtime_delay = params
 
 
                 # Calculate squared differences between estimated and actual delays
                 squared_diff = [
-                    (overall_time_delay - find_time_delay(input_signals, output_signal, sampling_rate))**2,
-                    (estimated_time_delay - polynomial_regression_time_delay(input_signals, output_signal, degree))**2,
+                    (estimated_time_delay_CrossCorr - find_time_delay(input_signals, output_signal, sampling_rate))**2,
+                    (estimated_time_delay_poly - polynomial_regression_time_delay(input_signals, output_signal, degree))**2,
                     (estimated_Linear_time_delay - linear_regression_time_delay(input_signals, output_signal))**2,
                     (estimated_ARXtime_delay - arx_modeling_time_delay(input_signals, output_signal, order))**2
                 ]
@@ -235,19 +235,19 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             result = minimize(objective_function, initial_guesses, bounds=bounds)
 
             # Get the optimized time delays
-            overall_time_delay_opt = result.x[0]
-            estimated_time_delay_opt = result.x[1]
+            estimated_CrossCorr_time_delay_opt = result.x[0]
+            estimated_Poly_time_delay_opt = result.x[1]
             estimated_Linear_time_delay_opt = result.x[2]
             estimated_ARXtime_delay_opt = result.x[3]
 
 
             # Choose the method with the best time delay
-            delays = [overall_time_delay, estimated_time_delay, estimated_Linear_time_delay, estimated_ARXtime_delay]
+            delays = [estimated_time_delay_CrossCorr, estimated_time_delay_poly, estimated_Linear_time_delay, estimated_ARXtime_delay]
             best_method_index = np.argmax(delays)
 
             # Choose the method with the best time delay based on the optimization results
-            optimal_delays = [overall_time_delay_opt, estimated_time_delay_opt, estimated_Linear_time_delay_opt, estimated_ARXtime_delay_opt]
-            best_method_index_opt = np.argmax(optimal_delays)
+            optimal_delays = [estimated_CrossCorr_time_delay_opt, estimated_Poly_time_delay_opt, estimated_Linear_time_delay_opt, estimated_ARXtime_delay_opt]
+            best_method_index_opt = np.argmin(optimal_delays)
 
 
             # Add LSTM method
@@ -255,23 +255,23 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             optimal_delays.append(lstm_time_delay_opt)
 
 
-            print(f"Polynomial Regression Time Delay: {estimated_time_delay} seconds")
-            print(f"Cross Correlation Time Delay: {overall_time_delay} seconds")
+            print(f"Cross Correlation Time Delay: {estimated_time_delay_CrossCorr} seconds")
+            print(f"Polynomial Regression Time Delay: {estimated_time_delay_poly} seconds")
             print(f"Linear Regression Time Delay: {estimated_Linear_time_delay} seconds")
             print(f"ARX Modeling Time Delay: {estimated_ARXtime_delay} seconds")
             print(f"Long Short Term Memory (LSTM) Time Delay: {estimated_LSTM} seconds")
             print()
-            print(f"Best Compensation Method: {['Linear Regression', 'Polynomial Regression', 'Cross Correlation', 'ARX'][best_method_index]}")
+            print(f"Best Compensation Method: {['Cross Correlation', 'Polynomial Regression', 'Linear Regression', 'ARX'][best_method_index]}")
             print()
 
 
-            print(f"Optimized Polynomial Regression Time Delay: {estimated_time_delay_opt} seconds")
-            print(f"Optimized Cross Correlation Time Delay: {overall_time_delay_opt} seconds")
+            print(f"Optimized Cross Correlation Time Delay: {estimated_CrossCorr_time_delay_opt} seconds")
+            print(f"Optimized Polynomial Regression Time Delay: {estimated_Poly_time_delay_opt} seconds")
             print(f"Optimized Linear Regression Time Delay: {estimated_Linear_time_delay_opt} seconds")
             print(f"Optimized ARX Modeling Time Delay: {estimated_ARXtime_delay_opt} seconds")
             print(f"Optimized LSTM Time Delay: {lstm_time_delay_opt} seconds")
             print()
-            print(f"Best Compensation Method (Optimized): {['Linear Regression', 'Polynomial Regression', 'Cross Correlation', 'ARX'][best_method_index_opt]}")
+            print(f"Best Compensation Method (Optimized): {['Cross Correlation', 'Polynomial Regression', 'Linear Regression', 'ARX'][best_method_index_opt]}")
             print('########################################################################################################################################################')
             
 
