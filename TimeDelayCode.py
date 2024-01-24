@@ -293,7 +293,7 @@ data = [
 
 
 # Specify the number of input and output signals for each CSV file
-num_input_signals_list = [4, 4, 4, 4, 4, 5, 6, 6, 7, 6]          #This list specifies the number of input signals each dataframe takes, so index 0 is for ds1.csv and so on
-num_output_signals_list = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]         #This list specifies the number of output signals each dataframe takes, so index 0 is for ds1.csv and so on
+num_input_signals_list = [4, 4, 4, 8, 8, 5, 6, 6, 7, 6]          #This list specifies the number of input signals each dataframe takes, so index 0 is for ds1.csv and so on
+num_output_signals_list = [2, 2, 2, 8, 8, 7, 8, 8, 6, 8]         #This list specifies the number of output signals each dataframe takes, so index 0 is for ds1.csv and so on
 
 perform_time_delay_estimation(data, num_input_signals_list, num_output_signals_list)
