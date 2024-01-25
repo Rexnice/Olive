@@ -34,51 +34,51 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             print(f"Time Delay Estimation for {output_col}, with respect to DataFrame {file_path}")
             output_signal = data[output_col]
         
-            for input_col, output_col in zip(input_signals, output_signal):
-                def cross_correlation(signal1, signal2):
-                    len_signal1 = len(signal1)
-                    len_signal2 = len(signal2)
-                    len_cross_corr = len_signal1 + len_signal2 - 1
+            # for input_col, output_col in zip(input_signals, output_signal):
+            #     def cross_correlation(signal1, signal2):
+            #         len_signal1 = len(signal1)
+            #         len_signal2 = len(signal2)
+            #         len_cross_corr = len_signal1 + len_signal2 - 1
 
-                    # Initialize cross-correlation array with zeros
-                    cross_corr = [0] * len_cross_corr
+            #         # Initialize cross-correlation array with zeros
+            #         cross_corr = [0] * len_cross_corr
 
-                    # Reverse the second signal for convolution (cross-correlation)
-                    signal2_rev = signal2[::-1]
+            #         # Reverse the second signal for convolution (cross-correlation)
+            #         signal2_rev = signal2[::-1]
 
-                    # Perform cross-correlation Calculation
-                    for i in range(len_cross_corr):
-                        for j in range(len_signal1):
-                            if i - j >= 0 and i - j < len_signal2:
-                                cross_corr[i] += signal1[j] * signal2_rev[i - j]
+            #         # Perform cross-correlation Calculation
+            #         for i in range(len_cross_corr):
+            #             for j in range(len_signal1):
+            #                 if i - j >= 0 and i - j < len_signal2:
+            #                     cross_corr[i] += signal1[j] * signal2_rev[i - j]
 
-                    return cross_corr
+            #         return cross_corr
 
-            def find_time_delay(input_signals, output_signal, sampling_rate):
-                input_signals_array = input_signals.to_numpy()
-                output_signal_array = output_signal.to_numpy().flatten()
+            # def find_time_delay(input_signals, output_signal, sampling_rate):
+            #     input_signals_array = input_signals.to_numpy()
+            #     output_signal_array = output_signal.to_numpy().flatten()
 
-                num_channels = input_signals_array.shape[1]
+            #     num_channels = input_signals_array.shape[1]
 
-                # Initialize an array to store overall time delays for each channel
-                time_delays = np.zeros(num_channels)
+            #     # Initialize an array to store overall time delays for each channel
+            #     time_delays = np.zeros(num_channels)
 
-                # Calculate overall time delay for each channel
-                for channel in range(num_channels):
-                    # Extract the input signal for the current channel..
-                    input_channel = input_signals_array[:, channel]
+            #     # Calculate overall time delay for each channel
+            #     for channel in range(num_channels):
+            #         # Extract the input signal for the current channel..
+            #         input_channel = input_signals_array[:, channel]
 
-                    # Compute cross-correlation between the input channel and the output signal
-                    cross_corr = cross_correlation(output_signal_array, input_channel)
+            #         # Compute cross-correlation between the input channel and the output signal
+            #         cross_corr = cross_correlation(output_signal_array, input_channel)
 
-                    # Find the index of the maximum correlation value
-                    max_corr_index = cross_corr.index(max(cross_corr))
+            #         # Find the index of the maximum correlation value
+            #         max_corr_index = cross_corr.index(max(cross_corr))
 
-                    # Calculate the time delay in seconds
-                    time_delays[channel] = max_corr_index / sampling_rate
+            #         # Calculate the time delay in seconds
+            #         time_delays[channel] = max_corr_index / sampling_rate
 
-                # Return the maximum time delay across all channels
-                return np.argmax(time_delays)
+            #     # Return the maximum time delay across all channels
+            #     return np.argmin(time_delays)
 
             def polynomial_regression_time_delay(input_signals, output_signal, degree):
                 input_signals_array = input_signals.to_numpy()
@@ -101,7 +101,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     time_delays[channel] = -coeffs[-2] / (degree * coeffs[-1])
 
                 # Return the Maximum time delay across all channels
-                return np.argmax(time_delays)
+                return np.argmin(time_delays)
 
             def linear_regression_time_delay(input_signals, output_signal):
                 # Convert input and output signals to NumPy arrays
@@ -132,7 +132,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     time_delays[channel] = -intercept / slope
 
                 # Return the Maximum time delay across all channels
-                return np.argmax(time_delays)
+                return np.argmin(time_delays)
 
             def arx_modeling_time_delay(input_signals, output_signal, order):
                 input_signals_array = input_signals.to_numpy()
@@ -164,43 +164,43 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     time_delays[channel] = -coefficients[0] / coefficients[1]
 
                 # Return the Maximum time delay across all channels
-                return np.argmax(time_delays)
+                return np.argmin(time_delays)
 
-            def lstm_time_delay(input_signals, output_signal, epochs=100, batch_size=32):
-                # Normalize input and output data
-                scaler = MinMaxScaler(feature_range=(0, 1))
-                input_signals_scaled = scaler.fit_transform(input_signals)
-                output_signal_scaled = scaler.fit_transform(output_signal.values.reshape(-1, 1))
+            # def lstm_time_delay(input_signals, output_signal, epochs=100, batch_size=32):
+            #     # Normalize input and output data
+            #     scaler = MinMaxScaler(feature_range=(0, 1))
+            #     input_signals_scaled = scaler.fit_transform(input_signals)
+            #     output_signal_scaled = scaler.fit_transform(output_signal.values.reshape(-1, 1))
 
-                # Reshape input data for LSTM
-                input_signals_reshaped = np.reshape(input_signals_scaled, (input_signals_scaled.shape[0], 1, input_signals_scaled.shape[1]))
+            #     # Reshape input data for LSTM
+            #     input_signals_reshaped = np.reshape(input_signals_scaled, (input_signals_scaled.shape[0], 1, input_signals_scaled.shape[1]))
 
-                # Build the LSTM model
-                model = Sequential()
-                model.add(LSTM(units=50, activation='relu', input_shape=(1, input_signals_scaled.shape[1])))
-                model.add(Dense(units=1))
-                model.compile(optimizer='adam', loss='mean_squared_error')
+            #     # Build the LSTM model
+            #     model = Sequential()
+            #     model.add(LSTM(units=50, activation='relu', input_shape=(1, input_signals_scaled.shape[1])))
+            #     model.add(Dense(units=1))
+            #     model.compile(optimizer='adam', loss='mean_squared_error')
 
-                # Train the model
-                model.fit(input_signals_reshaped, output_signal_scaled, epochs=epochs, batch_size=batch_size, verbose=0)
+            #     # Train the model
+            #     model.fit(input_signals_reshaped, output_signal_scaled, epochs=epochs, batch_size=batch_size, verbose=0)
 
-                # Predict output using the trained model
-                predicted_output_scaled = model.predict(input_signals_reshaped)
+            #     # Predict output using the trained model
+            #     predicted_output_scaled = model.predict(input_signals_reshaped)
 
-                # Inverse transform to get the original scale
-                predicted_output = scaler.inverse_transform(predicted_output_scaled)
+            #     # Inverse transform to get the original scale
+            #     predicted_output = scaler.inverse_transform(predicted_output_scaled)
 
-                # Calculate the time delay
-                time_delay = find_time_delay(pd.DataFrame(predicted_output), output_signal, sampling_rate)
+            #     # Calculate the time delay
+            #     time_delay = find_time_delay(pd.DataFrame(predicted_output), output_signal, sampling_rate)
 
-                return time_delay
+            #     return time_delay
             
 
-            estimated_time_delay_CrossCorr = find_time_delay(input_signals, output_signal, sampling_rate)
+            # estimated_time_delay_CrossCorr = find_time_delay(input_signals, output_signal, sampling_rate)
             estimated_time_delay_poly = polynomial_regression_time_delay(input_signals, output_signal, degree)
             estimated_Linear_time_delay = linear_regression_time_delay(input_signals, output_signal)
             estimated_ARXtime_delay = arx_modeling_time_delay(input_signals, output_signal, order)
-            estimated_LSTM = lstm_time_delay(input_signals, output_signal, epochs=100, batch_size=25)
+            # estimated_LSTM = lstm_time_delay(input_signals, output_signal, epochs=100, batch_size=25)
 
             """
 
@@ -211,12 +211,13 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             # Function to optimize
             def objective_function(params):
                 # Extract parameters for optimization
-                estimated_time_delay_CrossCorr, estimated_time_delay_poly, estimated_Linear_time_delay, estimated_ARXtime_delay = params
+                # estimated_time_delay_CrossCorr, 
+                estimated_time_delay_poly, estimated_Linear_time_delay, estimated_ARXtime_delay = params
 
 
                 # Calculate squared differences between estimated and actual delays
                 squared_diff = [
-                    (estimated_time_delay_CrossCorr - find_time_delay(input_signals, output_signal, sampling_rate))**2,
+                    # (estimated_time_delay_CrossCorr - find_time_delay(input_signals, output_signal, sampling_rate))**2,
                     (estimated_time_delay_poly - polynomial_regression_time_delay(input_signals, output_signal, degree))**2,
                     (estimated_Linear_time_delay - linear_regression_time_delay(input_signals, output_signal))**2,
                     (estimated_ARXtime_delay - arx_modeling_time_delay(input_signals, output_signal, order))**2
@@ -226,52 +227,54 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                 return sum(squared_diff)
 
             # Initial guesses for the time delays
-            initial_guesses = [0, 0, 0, 0]
+            initial_guesses = [0, 0, 0]
 
             # Define bounds for the time delays (non-negative)
-            bounds = [(0, None), (0, None), (0, None), (0, None)]
+            bounds = [(0, None), (0, None), (0, None)]
 
             # Minimize the objective function using SciPy
             result = minimize(objective_function, initial_guesses, bounds=bounds)
 
             # Get the optimized time delays
-            estimated_CrossCorr_time_delay_opt = result.x[0]
-            estimated_Poly_time_delay_opt = result.x[1]
-            estimated_Linear_time_delay_opt = result.x[2]
-            estimated_ARXtime_delay_opt = result.x[3]
+            # estimated_CrossCorr_time_delay_opt = result.x[0]
+            estimated_Poly_time_delay_opt = result.x[0]
+            estimated_Linear_time_delay_opt = result.x[1]
+            estimated_ARXtime_delay_opt = result.x[2]
 
 
             # Choose the method with the best time delay
-            delays = [estimated_time_delay_CrossCorr, estimated_time_delay_poly, estimated_Linear_time_delay, estimated_ARXtime_delay]
-            best_method_index = np.argmax(delays)
+            # estimated_time_delay_CrossCorr,
+            delays = [ estimated_time_delay_poly, estimated_Linear_time_delay, estimated_ARXtime_delay]
+            best_method_index = np.argmin(delays)
 
             # Choose the method with the best time delay based on the optimization results
-            optimal_delays = [estimated_CrossCorr_time_delay_opt, estimated_Poly_time_delay_opt, estimated_Linear_time_delay_opt, estimated_ARXtime_delay_opt]
+            # estimated_CrossCorr_time_delay_opt
+            optimal_delays = [ estimated_Poly_time_delay_opt, estimated_Linear_time_delay_opt, estimated_ARXtime_delay_opt]
             best_method_index_opt = np.argmin(optimal_delays)
 
 
             # Add LSTM method
-            lstm_time_delay_opt = lstm_time_delay(input_signals, output_signal)
-            optimal_delays.append(lstm_time_delay_opt)
+            # lstm_time_delay_opt = lstm_time_delay(input_signals, output_signal)
+            # optimal_delays.append(lstm_time_delay_opt)
 
 
-            print(f"Cross Correlation Time Delay: {estimated_time_delay_CrossCorr} seconds")
+            # print(f"Cross Correlation Time Delay: {estimated_time_delay_CrossCorr} seconds")
             print(f"Polynomial Regression Time Delay: {estimated_time_delay_poly} seconds")
             print(f"Linear Regression Time Delay: {estimated_Linear_time_delay} seconds")
             print(f"ARX Modeling Time Delay: {estimated_ARXtime_delay} seconds")
-            print(f"Long Short Term Memory (LSTM) Time Delay: {estimated_LSTM} seconds")
+            # print(f"Long Short Term Memory (LSTM) Time Delay: {estimated_LSTM} seconds")
             print()
-            print(f"Best Compensation Method: {['Cross Correlation', 'Polynomial Regression', 'Linear Regression', 'ARX'][best_method_index]}")
+            print(f"Best Compensation Method: {['Polynomial Regression', 'Linear Regression', 'ARX'][best_method_index]}")
             print()
 
 
-            print(f"Optimized Cross Correlation Time Delay: {estimated_CrossCorr_time_delay_opt} seconds")
+            # print(f"Optimized Cross Correlation Time Delay: {estimated_CrossCorr_time_delay_opt} seconds")
             print(f"Optimized Polynomial Regression Time Delay: {estimated_Poly_time_delay_opt} seconds")
             print(f"Optimized Linear Regression Time Delay: {estimated_Linear_time_delay_opt} seconds")
             print(f"Optimized ARX Modeling Time Delay: {estimated_ARXtime_delay_opt} seconds")
-            print(f"Optimized LSTM Time Delay: {lstm_time_delay_opt} seconds")
+            # print(f"Optimized LSTM Time Delay: {lstm_time_delay_opt} seconds")
             print()
-            print(f"Best Compensation Method (Optimized): {['Cross Correlation', 'Polynomial Regression', 'Linear Regression', 'ARX'][best_method_index_opt]}")
+            print(f"Best Compensation Method (Optimized): {[ 'Polynomial Regression', 'Linear Regression', 'ARX'][best_method_index_opt]}")
             print('########################################################################################################################################################')
             
 
@@ -297,3 +300,7 @@ num_input_signals_list = [4, 4, 4, 8, 8, 5, 6, 6, 7, 6]          #This list spec
 num_output_signals_list = [2, 2, 2, 8, 8, 7, 8, 8, 6, 8]         #This list specifies the number of output signals each dataframe takes, so index 0 is for ds1.csv and so on
 
 perform_time_delay_estimation(data, num_input_signals_list, num_output_signals_list)
+
+
+
+
