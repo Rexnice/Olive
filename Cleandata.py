@@ -8,7 +8,10 @@ print(df)
 
 
 column_to_convert = 'out5'
-df[column_to_convert] = pd.to_numeric(df[column_to_convert], errors='coerce')
+# df = df.astype({column_to_convert:'float'})
+df[column_to_convert] = pd.to_numeric(df[column_to_convert].str.replace(',', ''), errors='coerce')
+df['out5'] = df['out5'] / 1000000000.0
+df[column_to_convert] = df[column_to_convert].round(2)
 
 
 # suppress scientific notation by setting float_format
