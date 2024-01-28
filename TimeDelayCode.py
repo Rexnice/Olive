@@ -11,29 +11,31 @@ from scipy.optimize import minimize
 from keras.models import Sequential
 from keras.layers import LSTM, Dense
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import r2_score
 
 
 def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output_signals_list):
     for file_path, num_input_signals, num_output_signals in zip(file_paths, num_input_signals_list, num_output_signals_list):
         # Read the CSV files from the file_path
         data = pd.read_csv(file_path)
-        
-
+    
         # Importing the dataset and splitting into input_signal and output_signal        
         input_columns = [f'in{i}' for i in range(1, num_input_signals + 1)]
         output_columns = [f'out{i}' for i in range(1, num_output_signals + 1)]
 
         #Defining Parameters    
-        sampling_rate = 2000  # The sampling rate between the input and output signals
+        sampling_rate = 5754  # The sampling rate between the input and output signals
         degree = 2  # Degree of the polynomial regression Model
         order = 2 # Order of ARX model
+        lengthData = len(data)
+        batchSize = int(lengthData / 2)
 
         input_signals = data[input_columns]
 
         for output_col in output_columns:
             print(f"Time Delay Estimation for {output_col}, with respect to DataFrame {file_path}")
             output_signal = data[output_col]
-        
+
         
             def cross_correlation(signal1, signal2):
                 len_signal1 = len(signal1)
@@ -95,6 +97,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                 # Return the Maximum time delay across all channels
                 return np.argmin(time_delays)
 
+
             def linear_regression_time_delay(input_signals, output_signal):
                 # Convert input and output signals to NumPy arrays
                 input_signals_array = input_signals.to_numpy()
@@ -125,6 +128,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
 
                 # Return the Maximum time delay across all channels
                 return np.argmin(time_delays)
+
 
             def arx_modeling_time_delay(input_signals, output_signal, order):
                 input_signals_array = input_signals.to_numpy()
@@ -158,29 +162,30 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                 # Return the Maximum time delay across all channels
                 return np.argmin(time_delays)
 
-            def lstm_time_delay(input_signals, output_signal, epochs=100, batch_size=32):
+            def lstm_time_delay(input_signals, output_signal, epochs=100, batch_size=batchSize):
                 # Normalize input and output data
-                scaler = MinMaxScaler(feature_range=(0, 1))
-                input_signals_scaled = scaler.fit_transform(input_signals)
-                output_signal_scaled = scaler.fit_transform(output_signal.values.reshape(-1, 1))
+                scaler_input = MinMaxScaler(feature_range=(0, 1))
+                scaler_output = MinMaxScaler(feature_range=(0, 1))
+                input_signals_scaled = scaler_input.fit_transform(input_signals)
+                output_signal_scaled = scaler_output.fit_transform(output_signal.values.reshape(-1, 1))
 
+            
+                
                 # Reshape input data for LSTM
                 input_signals_reshaped = np.reshape(input_signals_scaled, (input_signals_scaled.shape[0], 1, input_signals_scaled.shape[1]))
 
-                # Build the LSTM model
+                # Build and train the LSTM model
                 model = Sequential()
                 model.add(LSTM(units=50, activation='relu', input_shape=(1, input_signals_scaled.shape[1])))
                 model.add(Dense(units=1))
                 model.compile(optimizer='adam', loss='mean_squared_error')
-
-                # Train the model
-                model.fit(input_signals_reshaped, output_signal_scaled, epochs=epochs, batch_size=batch_size, verbose=0)
+                model.fit(input_signals_reshaped, output_signal_scaled, epochs=2, batch_size=batchSize, verbose=0)
 
                 # Predict output using the trained model
                 predicted_output_scaled = model.predict(input_signals_reshaped)
 
                 # Inverse transform to get the original scale
-                predicted_output = scaler.inverse_transform(predicted_output_scaled)
+                predicted_output = scaler_output.inverse_transform(predicted_output_scaled)
 
                 # Calculate the time delay
                 time_delay = find_time_delay(pd.DataFrame(predicted_output), output_signal, sampling_rate)
@@ -192,7 +197,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             estimated_time_delay_poly = polynomial_regression_time_delay(input_signals, output_signal, degree)
             estimated_Linear_time_delay = linear_regression_time_delay(input_signals, output_signal)
             estimated_ARXtime_delay = arx_modeling_time_delay(input_signals, output_signal, order)
-            estimated_LSTM = lstm_time_delay(input_signals, output_signal, epochs=100, batch_size=25)
+            estimated_LSTM = lstm_time_delay(input_signals, output_signal, epochs=2, batch_size=25)
          
             # Function to optimize
             def objective_function(params):
