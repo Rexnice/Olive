@@ -24,7 +24,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
         output_columns = [f'out{i}' for i in range(1, num_output_signals + 1)]
 
         #Defining Parameters    
-        sampling_rate = 5754  # The sampling rate between the input and output signals
+        sampling_rate = 10  # The sampling rate between the input and output signals
         degree = 2  # Degree of the polynomial regression Model
         order = 2 # Order of ARX model
         lengthData = len(data)
@@ -162,7 +162,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                 # Return the Maximum time delay across all channels
                 return np.argmin(time_delays)
 
-            def lstm_time_delay(input_signals, output_signal, epochs=100, batch_size=batchSize):
+            def lstm_time_delay(input_signals, output_signal, epochs=1, batch_size=batchSize):
                 # Normalize input and output data
                 scaler_input = MinMaxScaler(feature_range=(0, 1))
                 scaler_output = MinMaxScaler(feature_range=(0, 1))
