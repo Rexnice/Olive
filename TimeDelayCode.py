@@ -1,6 +1,7 @@
 #Import the neccessary python libraries for the Analysis
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy.linalg import toeplitz
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
@@ -264,7 +265,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             print()
             print(f"Best Compensation Method (Optimized): {[ 'Cross Correlation', 'Polynomial Regression', 'Linear Regression', 'ARX'][best_method_index_opt]}")
             print('########################################################################################################################################################')
-            
+
 
 # List of file paths
 data = [
@@ -287,6 +288,9 @@ num_input_signals_list = [4, 4, 4, 8, 8, 5, 6, 6, 7, 6]          #This list spec
 num_output_signals_list = [2, 2, 2, 8, 8, 7, 8, 8, 6, 8]         #This list specifies the number of output signals each dataframe takes, so index 0 is for ds1.csv and so on
 
 perform_time_delay_estimation(data, num_input_signals_list, num_output_signals_list)
+
+
+
 
 
 
