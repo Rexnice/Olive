@@ -221,7 +221,8 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             initial_guesses = [0, 0, 0, 0]
 
             # Define bounds for the time delays (non-negative)
-            bounds = [(0, None), (0, None), (0, None), (0, None)]
+            bounds = [(-0.1, 0.1), (-0.1, 0.1), (-0.1, 0.1), (-0.1, 0.1)]
+            #bounds = [(0, None), (0, None), (0, None), (0, None)]
 
             # Minimize the objective function using SciPy
             result = minimize(objective_function, initial_guesses, bounds=bounds)
