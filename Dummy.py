@@ -260,10 +260,16 @@ def timeDelayEstimationMethod2(file_paths, num_input_signals_list, num_output_si
             print(f"Polynomial Regression Time Delay: {np.abs(estimated_Poly_time_delay_opt)} seconds")
             print(f"Linear Regression Time Delay: {np.abs(estimated_Linear_time_delay_opt)} seconds")
             print(f"ARX Time Delay: {np.abs(estimated_Arx_time_delay_opt)} seconds")
+            print(f"LSTM Time Delay: {lstm_time_delay_opt} seconds")
             print()
             print(f"Best Compensation Method (Optimized): {[ 'Cross Correlation: ', 'Polynomial Regression: ', 'Linear Regression: ', 'ARX mode: '][best_method_index_opt]}")
             print('########################################################################################################################################################')
 
 
 timeDelayEstimationMethod2(data, num_input_signals_list, num_output_signals_list)
+
+
+
+
+
 
