@@ -73,7 +73,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     time_delays[channel] = max_corr_index / sampling_rate
 
                 # Return the index of the minimum time delay across all channels
-                return np.argmin(time_delays)
+                return np.argmax(time_delays)
 
             def polynomial_regression_time_delay(input_signals, output_signal, degree):
                 input_signals_array = input_signals.to_numpy()
@@ -96,7 +96,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     time_delays[channel] = -coeffs[-2] / (degree * coeffs[-1])
 
                 # Return the Maximum time delay across all channels
-                return np.argmin(time_delays)
+                return np.argmax(time_delays)
 
 
             def linear_regression_time_delay(input_signals, output_signal):
@@ -128,7 +128,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     time_delays[channel] = -intercept / slope
 
                 # Return the Maximum time delay across all channels
-                return np.argmin(time_delays)
+                return np.argmax(time_delays)
 
 
             def arx_modeling_time_delay(input_signals, output_signal, order):
@@ -161,7 +161,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     time_delays[channel] = -coefficients[0] / coefficients[1]
 
                 # Return the Maximum time delay across all channels
-                return np.argmin(time_delays)
+                return np.argmax(time_delays)
 
             def lstm_time_delay(input_signals, output_signal, epochs=1, batch_size=batchSize):
                 # Normalize input and output data
