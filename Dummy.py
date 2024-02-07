@@ -267,14 +267,14 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             optimal_delays.append(lstm_time_delay_opt)
 
 
-            print(f"Cross Correlation Time Delay: {estimated_time_delay_CrossCorr} seconds")
-            print(f"Polynomial Regression Time Delay: {estimated_time_delay_poly} seconds")
-            print(f"Linear Regression Time Delay: {estimated_Linear_time_delay} seconds")
-            print(f"ARX Modeling Time Delay: {estimated_ARXtime_delay} seconds")
-            print(f"Long Short Term Memory (LSTM) Time Delay: {estimated_LSTM} seconds")
-            print()
-            print(f"Best Compensation Method: {['Cross Correlation','Polynomial Regression', 'Linear Regression', 'ARX'][best_method_index]}")
-            print()
+            # print(f"Cross Correlation Time Delay: {estimated_time_delay_CrossCorr} seconds")
+            # print(f"Polynomial Regression Time Delay: {estimated_time_delay_poly} seconds")
+            # print(f"Linear Regression Time Delay: {estimated_Linear_time_delay} seconds")
+            # print(f"ARX Modeling Time Delay: {estimated_ARXtime_delay} seconds")
+            # print(f"Long Short Term Memory (LSTM) Time Delay: {estimated_LSTM} seconds")
+            # print()
+            # print(f"Best Compensation Method: {['Cross Correlation','Polynomial Regression', 'Linear Regression', 'ARX'][best_method_index]}")
+            # print()
 
 
             print(f"Optimized Cross Correlation Time Delay: {estimated_CrossCorr_time_delay_opt} seconds")
@@ -285,8 +285,6 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             print()
             print(f"Best Compensation Method (Optimized): {[ 'Cross Correlation', 'Polynomial Regression', 'Linear Regression', 'ARX'][best_method_index_opt]}")
             print('########################################################################################################################################################')
-
-perform_time_delay_estimation(data, num_input_signals_list, num_output_signals_list)
 
 
 print("Execution of Time Delay Estimation Method2 Begins Here")
@@ -497,31 +495,34 @@ def timeDelayEstimationMethod2(file_paths, num_input_signals_list, num_output_si
             result = minimize(objective_function, initial_guesses, args=(input_signals, output_signal, sampling_rate, degree), bounds=bounds)
 
             # Get the optimized time delays
-            estimated_CrossCorr_time_delay_opt = result.x[0]
-            estimated_Poly_time_delay_opt = result.x[1]
-            estimated_Linear_time_delay_opt = result.x[2]
-            estimated_Arx_time_delay_opt = result.x[3]
+            estimated_CrossCorr_time_delay_opt2 = result.x[0]
+            estimated_Poly_time_delay_opt2 = result.x[1]
+            estimated_Linear_time_delay_opt2 = result.x[2]
+            estimated_Arx_time_delay_opt2 = result.x[3]
 
 
             # Choose the method with the best time delay based on the optimization results
-            optimal_delays = [estimated_CrossCorr_time_delay_opt, estimated_Poly_time_delay_opt, estimated_Linear_time_delay_opt, estimated_Arx_time_delay_opt]
+            optimal_delays = [estimated_CrossCorr_time_delay_opt2, estimated_Poly_time_delay_opt2, estimated_Linear_time_delay_opt2, estimated_Arx_time_delay_opt2]
             best_method_index_opt = np.argmin(optimal_delays)
 
             
             # Add LSTM method
-            lstm_time_delay_opt = lstm_time_delay(input_signals, output_signal)
-            optimal_delays.append(lstm_time_delay_opt)
+            lstm_time_delay_opt2 = lstm_time_delay(input_signals, output_signal)
+            optimal_delays.append(lstm_time_delay_opt2)
 
 
-            print(f"Cross Correlation Time Delay: {np.abs(estimated_CrossCorr_time_delay_opt)} seconds")
-            print(f"Polynomial Regression Time Delay: {np.abs(estimated_Poly_time_delay_opt)} seconds")
-            print(f"Linear Regression Time Delay: {np.abs(estimated_Linear_time_delay_opt)} seconds")
-            print(f"ARX Time Delay: {np.abs(estimated_Arx_time_delay_opt)} seconds")
-            print(f"LSTM Time Delay: {lstm_time_delay_opt} seconds")
+            print(f"Cross Correlation Time Delay: {np.abs(estimated_CrossCorr_time_delay_opt2)} seconds")
+            print(f"Polynomial Regression Time Delay: {np.abs(estimated_Poly_time_delay_opt2)} seconds")
+            print(f"Linear Regression Time Delay: {np.abs(estimated_Linear_time_delay_opt2)} seconds")
+            print(f"ARX Time Delay: {np.abs(estimated_Arx_time_delay_opt2)} seconds")
+            print(f"LSTM Time Delay: {lstm_time_delay_opt2} seconds")
             print()
             print(f"Best Compensation Method (Optimized): {[ 'Cross Correlation: ', 'Polynomial Regression: ', 'Linear Regression: ', 'ARX mode: '][best_method_index_opt]}")
             print('########################################################################################################################################################')
 
+
+
+perform_time_delay_estimation(data, num_input_signals_list, num_output_signals_list)
 
 timeDelayEstimationMethod2(data, num_input_signals_list, num_output_signals_list)
 
