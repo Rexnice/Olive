@@ -433,7 +433,7 @@ def lstm_time_delay(input_signals, output_signal, epochs=1, batch_size=batchSize
 
         # Build and train the LSTM model
         model = Sequential()
-        model.add(LSTM(units=50, activation='relu', input_shape=(1, input_signals_scaled.shape[1])))
+        model.add(LSTM(units=100, activation='relu', input_shape=(1, input_signals_scaled.shape[1])))
         model.add(Dense(units=1))
         model.compile(optimizer='adam', loss='mean_squared_error')
         model.fit(input_signals_reshaped, output_signal_scaled, epochs=2, batch_size=batchSize, verbose=0)

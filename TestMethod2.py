@@ -194,10 +194,10 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
 
                 # Build and train the LSTM model
                 model = Sequential()
-                model.add(LSTM(units=50, activation='relu', input_shape=(1, input_signals_scaled.shape[1])))
+                model.add(LSTM(units=100, activation='relu', input_shape=(1, input_signals_scaled.shape[1])))
                 model.add(Dense(units=1))
                 model.compile(optimizer='adam', loss='mean_squared_error')
-                model.fit(input_signals_reshaped, output_signal_scaled, epochs=2, batch_size=batchSize, verbose=0)
+                model.fit(input_signals_reshaped, output_signal_scaled, epochs=3, batch_size=batchSize, verbose=0)
 
                 # Predict output using the trained model
                 predicted_output_scaled = model.predict(input_signals_reshaped)
@@ -242,7 +242,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     cross_corr = cross_correlation2(output_signal_array, input_channel)
 
                     # Find the index of the maximum correlation value
-                    max_corr_index = np.argmax(cross_corr)
+                    max_corr_index = np.mean(cross_corr)
 
                     # Calculate the time delay in seconds
                     time_delays[channel] = max_corr_index / sampling_rate
@@ -337,37 +337,32 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                 return time_delays
 
             def lstm_time_delay2(input_signals, output_signal, epochs=1, batch_size=batchSize):
-                    # Normalize input and output data
-                    scaler_input = MinMaxScaler(feature_range=(0, 1))
-                    scaler_output = MinMaxScaler(feature_range=(0, 1))
-                    input_signals_scaled = scaler_input.fit_transform(input_signals)
-                    output_signal_scaled = scaler_output.fit_transform(output_signal.values.reshape(-1, 1))
+                # Normalize input and output data
+                scaler_input = MinMaxScaler(feature_range=(0, 1))
+                scaler_output = MinMaxScaler(feature_range=(0, 1))
+                input_signals_scaled = scaler_input.fit_transform(input_signals)
+                output_signal_scaled = scaler_output.fit_transform(output_signal.values.reshape(-1, 1))
 
-                    # Reshape input data for LSTM
-                    input_signals_reshaped = np.reshape(input_signals_scaled, (input_signals_scaled.shape[0], 1, input_signals_scaled.shape[1]))
+                # Reshape input data for LSTM
+                input_signals_reshaped = np.reshape(input_signals_scaled, (input_signals_scaled.shape[0], 1, input_signals_scaled.shape[1]))
 
-                    # Build and train the LSTM model
-                    model = Sequential()
-                    model.add(LSTM(units=50, activation='relu', input_shape=(1, input_signals_scaled.shape[1])))
-                    model.add(Dense(units=1))
-                    model.compile(optimizer='adam', loss='mean_squared_error')
-                    model.fit(input_signals_reshaped, output_signal_scaled, epochs=2, batch_size=batchSize, verbose=0)
+                # Build and train the LSTM model
+                model = Sequential()
+                model.add(LSTM(units=100, activation='relu', input_shape=(1, input_signals_scaled.shape[1])))
+                model.add(Dense(units=1))
+                model.compile(optimizer='adam', loss='mean_squared_error')
+                model.fit(input_signals_reshaped, output_signal_scaled, epochs=2, batch_size=batchSize, verbose=0)
 
-                    # Predict output using the trained model
-                    predicted_output_scaled = model.predict(input_signals_reshaped)
+                # Predict output using the trained model
+                predicted_output_scaled = model.predict(input_signals_reshaped)
 
-                    # Inverse transform to get the original scale
-                    predicted_output = scaler_output.inverse_transform(predicted_output_scaled)
+                # Inverse transform to get the original scale
+                predicted_output = scaler_output.inverse_transform(predicted_output_scaled)
 
-                    # Flatten predicted_output to ensure it's a 1-dimensional array
-                    predicted_output = predicted_output.flatten()
+                # Calculate the time delay
+                time_delay = find_time_delay(pd.DataFrame(predicted_output), output_signal, sampling_rate)
 
-                    # Calculate the time delay
-                    time_delay = find_time_delay2(pd.DataFrame(predicted_output), output_signal, sampling_rate)
-
-                    return time_delay
-
-
+                return time_delay
 
 
             estimated_time_delay_CrossCorr = find_time_delay(input_signals, output_signal, sampling_rate)
@@ -375,6 +370,12 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             estimated_Linear_time_delay = linear_regression_time_delay(input_signals, output_signal)
             estimated_ARXtime_delay = arx_modeling_time_delay(input_signals, output_signal, order)
             estimated_LSTM = lstm_time_delay(input_signals, output_signal, epochs=2, batch_size=25)
+            
+            estimated_time_delay_CrossCorr2 = find_time_delay2(input_signals, output_signal, sampling_rate)
+            estimated_time_delay_poly2 = polynomial_regression_time_delay2(input_signals, output_signal, degree)
+            estimated_Linear_time_delay2 = linear_regression_time_delay2(input_signals, output_signal)
+            estimated_ARXtime_delay2 = arx_modeling_time_delay2(input_signals, output_signal, order)
+            estimated_LSTM2 = lstm_time_delay2(input_signals, output_signal, epochs=2, batch_size=25)
          
             # Function to optimize
             def objective_function(params):
@@ -394,27 +395,24 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                 return sum(squared_diff)
             
             def objective_function2(params, input_signals, output_signal, sampling_rate, degree):
-                estimated_time_delay_CrossCorr, estimated_time_delay_poly, estimated_linear_time_delay, estimated_arx_time_delay = params
+                estimated_time_delay_CrossCorr2, estimated_time_delay_poly2, estimated_linear_time_delay2, estimated_arx_time_delay2 = params
 
                 # Calculate squared differences between estimated and actual delays
                 squared_diff = [
-                    (estimated_time_delay_CrossCorr - find_time_delay2(input_signals, output_signal, sampling_rate))**2,
-                    (estimated_time_delay_poly - polynomial_regression_time_delay2(input_signals, output_signal, degree))**2,
-                    (estimated_linear_time_delay - linear_regression_time_delay2(input_signals, output_signal))**2,
-                    (estimated_arx_time_delay - arx_modeling_time_delay2(input_signals, output_signal, order=2))**2,
+                    (estimated_time_delay_CrossCorr2 - find_time_delay2(input_signals, output_signal, sampling_rate))**2,
+                    (estimated_time_delay_poly2 - polynomial_regression_time_delay2(input_signals, output_signal, degree))**2,
+                    (estimated_linear_time_delay2 - linear_regression_time_delay2(input_signals, output_signal))**2,
+                    (estimated_arx_time_delay2 - arx_modeling_time_delay2(input_signals, output_signal, order=2))**2,
                 ]
                 
                 # Sum of scores, aiming to minimize the total score
                 return np.sum(squared_diff)
 
-
-
-
             # Initial guesses for the time delays
             initial_guesses = [0, 0, 0, 0]
 
             # Define bounds for the time delays (non-negative) for bothMethods
-            bounds = [(-0.1, 0.1), (-0.1, 0.1), (-0.1, 0.1), (-0.1, 0.1)]
+            bounds = [(0.1, 6), (0.1, 6), (0.1, 6), (0.1, 6)]
             #bounds = [(0, None), (0, None), (0, None), (0, None)]
 
             # Minimize the objective function using SciPy for Method 1 and Method 2
@@ -477,9 +475,9 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             print('########################################################################################################################################################')
 
 
-            # results['Filename'] = file_path
-            # results['Input'] = input_signals
-            # results['Output'] = output_signal
+            results['Filename'] = file_path
+            results['Input'] = input_signals
+            results['Output'] = output_signal
 
             
             # Store the results
@@ -501,6 +499,10 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             results['BestDelay1'] = best_delay1
 
 
+            results2['Filename'] = file_path
+            results2['Input'] = input_signals
+            results2['Output'] = output_signal
+
             results2['CrossCorr2'] = estimated_CrossCorr_time_delay_opt2
             results2['PolyRegre2'] = estimated_Poly_time_delay_opt2
             results2['LinRegre2'] = estimated_Linear_time_delay_opt2
@@ -514,9 +516,6 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             best_method_index2 = np.argmin(time_delays2)
             best_method2 = methods2[best_method_index2]
             best_delay2 = time_delays1[best_method_index2]
-
-            results2['BestMethod1'] = best_method1
-            results2['BestDelay1'] = best_delay1
 
             results2['BestMethod2'] = best_method2
             results2['BestDelay2'] = best_delay2
@@ -536,7 +535,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
 
 def main():
     num_input_signals_list = [4, 4, 4, 8, 8, 5, 6, 6, 7, 6]
-    num_output_signals_list = [2, 2, 2, 8, 8, 7, 8, 8, 6, 8]
+    num_output_signals_list = [42, 42, 42, 168, 168, 147, 168, 168, 126, 168]
 
     result = perform_time_delay_estimation(data, num_input_signals_list, num_output_signals_list)
     return result
