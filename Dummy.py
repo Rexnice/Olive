@@ -33,6 +33,12 @@ data = [
 num_input_signals_list = [4, 4, 4, 8, 8, 5, 6, 6, 7, 6]
 num_output_signals_list = [2, 2, 2, 8, 8, 7, 8, 8, 6, 8]
 
+#Defining Parameters    
+sampling_rate = 10  # The sampling rate between the input and output signals
+degree = 2  # Degree of the polynomial regression Model
+order = 2 # Order of ARX model
+lengthData = len(data)
+batchSize = int(lengthData / 2)
 
 def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output_signals_list):
     for file_path, num_input_signals, num_output_signals in zip(file_paths, num_input_signals_list, num_output_signals_list):
@@ -291,12 +297,6 @@ print("Execution of Time Delay Estimation Method2 Begins Here")
 #Method two Implementation starts here
 # List of file paths
 
-#Defining Parameters    
-sampling_rate = 10  # The sampling rate between the input and output signals
-degree = 2  # Degree of the polynomial regression Model
-order = 2 # Order of ARX model
-lengthData = len(data)
-batchSize = int(lengthData / 2)
 
 def cross_correlation2(signal1, signal2):
     len_signal1 = len(signal1)
@@ -531,3 +531,49 @@ timeDelayEstimationMethod2(data, num_input_signals_list, num_output_signals_list
 
 
 
+
+
+
+
+
+
+
+def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output_signals_list):
+    allresults = []  # Initialize an empty list to store all results
+    for file_path, num_input_signals, num_output_signals in zip(file_paths, num_input_signals_list, num_output_signals_list):
+        # Read the CSV file
+        data = pd.read_csv(file_path)
+        
+        # Define input and output columns
+        input_columns = [f'in{i}' for i in range(1, num_input_signals + 1)]
+        output_columns = [f'out{i}' for i in range(1, num_output_signals + 1)]
+
+        # Extract input and output signals
+        input_signals = data[input_columns]
+        
+        for output_col in output_columns:
+            results = {}  # Initialize a dictionary to store results for this dataset
+            output_signal = data[output_col]
+            # Your existing code for time delay estimation and optimization goes here...
+            # Update the 'results' dictionary with the relevant information
+            allresults.append(results)  # Append the results for this dataset to the list
+        
+    return allresults
+
+def main():
+    data = [
+        'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/cleaned_transformed_ds1.csv',
+        'C:/Users/#emmyCode/Desktop/ErnestProject/Olive/cleaned_transformed_ds2.csv',
+        # Add more file paths as needed
+    ]
+
+    num_input_signals_list = [4, 4, 4, 8, 8, 5, 6, 6, 7, 6]
+    num_output_signals_list = [2, 2, 2, 8, 8, 7, 8, 8, 6, 8]
+
+    results = perform_time_delay_estimation(data, num_input_signals_list, num_output_signals_list)
+
+    # Save the results to a CSV file
+    save_results_to_csv(results, 'time_delay_estimation_results.csv')
+
+if __name__ == "__main__":
+    main()
