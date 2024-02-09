@@ -211,8 +211,6 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                 return time_delay
             
 
-
-
             def cross_correlation2(signal1, signal2):
                 len_signal1 = len(signal1)
                 len_signal2 = len(signal2)
@@ -417,7 +415,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
 
             # Minimize the objective function using SciPy for Method 1 and Method 2
             result = minimize(objective_function, initial_guesses, bounds=bounds)
-            result = minimize(objective_function2, initial_guesses, args=(input_signals, output_signal, sampling_rate, degree), bounds=bounds)
+            result2 = minimize(objective_function2, initial_guesses, args=(input_signals, output_signal, sampling_rate, degree), bounds=bounds)
 
 
             # Get the optimized time delays for Method 1
@@ -428,10 +426,10 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
 
 
             # Get the optimized time delays for Method 2
-            estimated_CrossCorr_time_delay_opt2 = result.x[0]
-            estimated_Poly_time_delay_opt2 = result.x[1]
-            estimated_Linear_time_delay_opt2 = result.x[2]
-            estimated_Arx_time_delay_opt2 = result.x[3]
+            estimated_CrossCorr_time_delay_opt2 = result2.x[0]
+            estimated_Poly_time_delay_opt2 = result2.x[1]
+            estimated_Linear_time_delay_opt2 = result2.x[2]
+            estimated_Arx_time_delay_opt2 = result2.x[3]
 
 
             # Choose the method with the best time delay
@@ -531,7 +529,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
         df.to_csv('Method1_Output.csv', index=False)
         df2.to_csv('Method2_Output.csv', index=False)
 
-            
+
 
 def main():
     num_input_signals_list = [4, 4, 4, 8, 8, 5, 6, 6, 7, 6]
