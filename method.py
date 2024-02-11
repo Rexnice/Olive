@@ -34,5 +34,10 @@
 
 import pandas as pd
 
-data = pd.read_csv("cleaned_transformed_ds10.csv")
-print(data.head(10))
+data = pd.read_csv("cleaned_transformed_ds1.csv")
+
+n = 11
+df2 = data.iloc[n:]
+print("After dropping first n rows:\n", df2.head(10))
+#print(data.describe())
+df2.to_csv("cleaned_transformed_ds1.csv")

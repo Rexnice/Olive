@@ -14,19 +14,21 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 from scipy.signal import correlate
 from scipy.optimize import minimize
+import re
 
 
 data = [
+    
     'cleaned_transformed_ds1.csv',
-    'cleaned_transformed_ds2.csv',
-    'cleaned_transformed_ds3.csv',
-    'cleaned_transformed_ds4.csv',
-    'cleaned_transformed_ds5.csv',
-    'cleaned_transformed_ds6.csv',
-    'cleaned_transformed_ds7.csv',
-    'cleaned_transformed_ds8.csv',
-    'cleaned_transformed_ds9.csv',
-    'cleaned_transformed_ds10.csv',    
+    # 'cleaned_transformed_ds2.csv',
+    # 'cleaned_transformed_ds3.csv',
+    # 'cleaned_transformed_ds4.csv',
+    # 'cleaned_transformed_ds5.csv',
+    # 'cleaned_transformed_ds6.csv',
+    # 'cleaned_transformed_ds7.csv',
+    # 'cleaned_transformed_ds8.csv',
+    # 'cleaned_transformed_ds9.csv',
+    # 'cleaned_transformed_ds10.csv',    
 ]
     
     
@@ -45,8 +47,11 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
         data = pd.read_csv(file_path)
     
         # Importing the dataset and splitting into input_signal and output_signal        
-        input_columns = [f'in{i}' for i in range(1, num_input_signals + 1)]
-        output_columns = [f'out{i}' for i in range(1, num_output_signals + 1)]
+        #input_columns = [f'in{i}' for i in range(1, num_input_signals + 1)]
+        #output_columns = [f'out{i}' for i in range(1, num_output_signals + 1)]
+        # output_columns = [col for col in data.columns if re.match(r'out', col)]
+        input_columns = data.columns[:num_input_signals]
+        output_columns = data.columns[num_input_signals:]
 
         input_signals = data[input_columns]
 
@@ -410,7 +415,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             initial_guesses = [0, 0, 0, 0]
 
             # Define bounds for the time delays (non-negative) for bothMethods
-            bounds = [(0.1, 6), (0.1, 6), (0.1, 6), (0.1, 6)]
+            bounds = [(0, 2), (0, 2), (0, 2), (0, 2)]
             #bounds = [(0, None), (0, None), (0, None), (0, None)]
 
             # Minimize the objective function using SciPy for Method 1 and Method 2
@@ -474,8 +479,8 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
 
 
             results['Filename'] = file_path
-            results['Input'] = input_signals
-            results['Output'] = output_signal
+            results['Input'] = input_columns
+            results['Output'] = output_col
 
             
             # Store the results
@@ -498,8 +503,8 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
 
 
             results2['Filename'] = file_path
-            results2['Input'] = input_signals
-            results2['Output'] = output_signal
+            results2['Input'] = input_columns
+            results2['Output'] = output_col
 
             results2['CrossCorr2'] = estimated_CrossCorr_time_delay_opt2
             results2['PolyRegre2'] = estimated_Poly_time_delay_opt2
@@ -532,8 +537,11 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
 
 
 def main():
-    num_input_signals_list = [4, 4, 4, 8, 8, 5, 6, 6, 7, 6]
-    num_output_signals_list = [42, 42, 42, 168, 168, 147, 168, 168, 126, 168]
+    num_input_signals_list = [4]
+    #num_input_signals_list = [4, 4, 4, 8, 8, 5, 6, 6, 7, 6]
+    #num_output_signals_list = [2, 2, 2, 8, 8, 7, 8, 8, 6, 8]
+    # num_output_signals_list = [42, 42, 42, 168, 168, 147, 168, 168, 126, 168]
+    num_output_signals_list = [42]
 
     result = perform_time_delay_estimation(data, num_input_signals_list, num_output_signals_list)
     return result
