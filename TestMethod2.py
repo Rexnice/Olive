@@ -1,4 +1,4 @@
-# #Import the neccessary python libraries for the Analysis
+#Import the neccessary python libraries for the Analysis
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
@@ -17,20 +17,18 @@ from scipy.optimize import minimize
 import re
 
 
-data = [
-    
+data = [    
     'cleaned_transformed_ds1.csv',
-    # 'cleaned_transformed_ds2.csv',
-    # 'cleaned_transformed_ds3.csv',
-    # 'cleaned_transformed_ds4.csv',
-    # 'cleaned_transformed_ds5.csv',
-    # 'cleaned_transformed_ds6.csv',
-    # 'cleaned_transformed_ds7.csv',
-    # 'cleaned_transformed_ds8.csv',
-    # 'cleaned_transformed_ds9.csv',
-    # 'cleaned_transformed_ds10.csv',    
+    'cleaned_transformed_ds2.csv',
+    'cleaned_transformed_ds3.csv',
+    'cleaned_transformed_ds4.csv',
+    'cleaned_transformed_ds5.csv',
+    'cleaned_transformed_ds6.csv',
+    'cleaned_transformed_ds7.csv',
+    'cleaned_transformed_ds8.csv',
+    'cleaned_transformed_ds9.csv',
+    'cleaned_transformed_ds10.csv',    
 ]
-    
     
 lengthData = len(data)
 batchSize = int(lengthData / 2)
@@ -46,10 +44,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
         # Read the CSV files from the file_path
         data = pd.read_csv(file_path)
     
-        # Importing the dataset and splitting into input_signal and output_signal        
-        #input_columns = [f'in{i}' for i in range(1, num_input_signals + 1)]
-        #output_columns = [f'out{i}' for i in range(1, num_output_signals + 1)]
-        # output_columns = [col for col in data.columns if re.match(r'out', col)]
+
         input_columns = data.columns[:num_input_signals]
         output_columns = data.columns[num_input_signals:]
 
@@ -437,10 +432,6 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             estimated_Arx_time_delay_opt2 = result2.x[3]
 
 
-            # Choose the method with the best time delay
-            # delays = [ estimated_time_delay_CrossCorr, estimated_time_delay_poly, estimated_Linear_time_delay, estimated_ARXtime_delay]
-            # best_method_index = np.argmin(delays)
-
             # Choose the method with the best time delay based on the optimization results for Method 1
             optimal_delays1 = [estimated_CrossCorr_time_delay_opt, estimated_Poly_time_delay_opt, estimated_Linear_time_delay_opt, estimated_ARXtime_delay_opt]
             best_method_index_opt1 = np.argmin(optimal_delays1)
@@ -537,11 +528,9 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
 
 
 def main():
-    num_input_signals_list = [4]
-    #num_input_signals_list = [4, 4, 4, 8, 8, 5, 6, 6, 7, 6]
-    #num_output_signals_list = [2, 2, 2, 8, 8, 7, 8, 8, 6, 8]
-    # num_output_signals_list = [42, 42, 42, 168, 168, 147, 168, 168, 126, 168]
-    num_output_signals_list = [42]
+    num_input_signals_list = [4, 4, 4, 8, 8, 5, 6, 6, 7, 6]
+    num_output_signals_list = [42, 42, 42, 168, 168, 147, 168, 168, 126, 168]
+    
 
     result = perform_time_delay_estimation(data, num_input_signals_list, num_output_signals_list)
     return result
