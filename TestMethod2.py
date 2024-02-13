@@ -19,15 +19,15 @@ import re
 
 data = [    
     'cleaned_transformed_ds1.csv',
-    'cleaned_transformed_ds2.csv',
-    'cleaned_transformed_ds3.csv',
-    'cleaned_transformed_ds4.csv',
-    'cleaned_transformed_ds5.csv',
-    'cleaned_transformed_ds6.csv',
-    'cleaned_transformed_ds7.csv',
-    'cleaned_transformed_ds8.csv',
-    'cleaned_transformed_ds9.csv',
-    'cleaned_transformed_ds10.csv',    
+    # 'cleaned_transformed_ds2.csv',
+    # 'cleaned_transformed_ds3.csv',
+    # 'cleaned_transformed_ds4.csv',
+    # 'cleaned_transformed_ds5.csv',
+    # 'cleaned_transformed_ds6.csv',
+    # 'cleaned_transformed_ds7.csv',
+    # 'cleaned_transformed_ds8.csv',
+    # 'cleaned_transformed_ds9.csv',
+    # 'cleaned_transformed_ds10.csv',    
 ]
     
 lengthData = len(data)
@@ -35,9 +35,9 @@ batchSize = int(lengthData / 2)
 
 def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output_signals_list):
     #Defining Parameters    
-    sampling_rate = 10  # The sampling rate between the input and output signals
-    degree = 2  # Degree of the polynomial regression Model
-    order = 2 # Order of ARX model
+    sampling_rate = 20  # The sampling rate between the input and output signals
+    degree = 3  # Degree of the polynomial regression Model
+    order = 3 # Order of ARX model
     allresults = []
     allresults2 = []
     for file_path, num_input_signals, num_output_signals in zip(file_paths, num_input_signals_list, num_output_signals_list):
@@ -349,7 +349,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                 model.add(LSTM(units=100, activation='relu', input_shape=(1, input_signals_scaled.shape[1])))
                 model.add(Dense(units=1))
                 model.compile(optimizer='adam', loss='mean_squared_error')
-                model.fit(input_signals_reshaped, output_signal_scaled, epochs=2, batch_size=batchSize, verbose=0)
+                model.fit(input_signals_reshaped, output_signal_scaled, epochs=3, batch_size=batchSize, verbose=0)
 
                 # Predict output using the trained model
                 predicted_output_scaled = model.predict(input_signals_reshaped)
@@ -358,7 +358,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                 predicted_output = scaler_output.inverse_transform(predicted_output_scaled)
 
                 # Calculate the time delay
-                time_delay = find_time_delay(pd.DataFrame(predicted_output), output_signal, sampling_rate)
+                time_delay = find_time_delay2(pd.DataFrame(predicted_output), output_signal, sampling_rate)
 
                 return time_delay
 
@@ -391,8 +391,8 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                 
                 # Sum of scores, aiming to minimize the total score
                 return sum(squared_diff)
-            
-            def objective_function2(params, input_signals, output_signal, sampling_rate, degree):
+    
+            def objective_function2(params):
                 estimated_time_delay_CrossCorr2, estimated_time_delay_poly2, estimated_linear_time_delay2, estimated_arx_time_delay2 = params
 
                 # Calculate squared differences between estimated and actual delays
@@ -400,7 +400,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     (estimated_time_delay_CrossCorr2 - find_time_delay2(input_signals, output_signal, sampling_rate))**2,
                     (estimated_time_delay_poly2 - polynomial_regression_time_delay2(input_signals, output_signal, degree))**2,
                     (estimated_linear_time_delay2 - linear_regression_time_delay2(input_signals, output_signal))**2,
-                    (estimated_arx_time_delay2 - arx_modeling_time_delay2(input_signals, output_signal, order=2))**2,
+                    (estimated_arx_time_delay2 - arx_modeling_time_delay2(input_signals, output_signal, order))**2,
                 ]
                 
                 # Sum of scores, aiming to minimize the total score
@@ -410,12 +410,12 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             initial_guesses = [0, 0, 0, 0]
 
             # Define bounds for the time delays (non-negative) for bothMethods
-            bounds = [(0, 2), (0, 2), (0, 2), (0, 2)]
-            #bounds = [(0, None), (0, None), (0, None), (0, None)]
+            # bounds = [(0, 10), (0, 10), (0, 10), (0, 10)]
+            bounds = [(0, None), (0, None), (0, None), (0, None)]
 
             # Minimize the objective function using SciPy for Method 1 and Method 2
             result = minimize(objective_function, initial_guesses, bounds=bounds)
-            result2 = minimize(objective_function2, initial_guesses, args=(input_signals, output_signal, sampling_rate, degree), bounds=bounds)
+            result2 = minimize(objective_function2, initial_guesses, bounds=bounds, args=(input_signals, output_signal, sampling_rate, degree))
 
 
             # Get the optimized time delays for Method 1
@@ -522,8 +522,8 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
         df2 = pd.DataFrame(allresults2)
     
         # Save the results to a CSV file
-        df.to_csv('Method1_Output.csv', index=False)
-        df2.to_csv('Method2_Output.csv', index=False)
+        df.to_csv('Method1.csv', index=False)
+        df2.to_csv('Method2.csv', index=False)
 
 
 
