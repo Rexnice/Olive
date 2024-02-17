@@ -32,12 +32,12 @@
 # max_score = max(results, key=lambda item: item[1])
 # print(f"Maximum Score: Delay = {max_score[0]} sec, Score = {max_score[1]:.4f}")
 
-import pandas as pd
 
-data = pd.read_csv("cleaned_transformed_ds1.csv")
+# data = pd.read_csv("cleaned_transformed_ds1.csv")
 
-n = 11
-df2 = data.iloc[n:]
-print("After dropping first n rows:\n", df2.head(10))
-#print(data.describe())
-df2.to_csv("cleaned_transformed_ds1.csv")
+# n = 11
+# df2 = data.iloc[n:]
+# print("After dropping first n rows:\n", df2.head(10))
+# #print(data.describe())
+# df2.to_csv("cleaned_transformed_ds1.csv")
+
