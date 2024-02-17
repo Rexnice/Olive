@@ -20,12 +20,12 @@ warnings.filterwarnings("ignore")
 
 data = [
     
-    'cleaned_transformed_ds1.csv',
-    'cleaned_transformed_ds2.csv',
-    'cleaned_transformed_ds3.csv',
-    'cleaned_transformed_ds4.csv',
-    'cleaned_transformed_ds5.csv',
-    'cleaned_transformed_ds6.csv',
+    # 'cleaned_transformed_ds1.csv',
+    # 'cleaned_transformed_ds2.csv',
+    # 'cleaned_transformed_ds3.csv',
+    # 'cleaned_transformed_ds4.csv',
+    # 'cleaned_transformed_ds5.csv',
+    # 'cleaned_transformed_ds6.csv',
     'cleaned_transformed_ds7.csv',
     'cleaned_transformed_ds8.csv',
     'cleaned_transformed_ds9.csv',
@@ -419,7 +419,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
 
             # Define bounds for the time delays (non-negative) for bothMethods
             bounds = [(0, 10), (0, 10), (0, 10), (0, 10)]
-            bounds2 = [(0, 10), (0, 10), (0, 10), (0, 10)]
+            bounds2 = [(0, 8.5), (0, 8.5), (0, 8.6), (0, 8.6)]
 
             # Minimize the objective function using SciPy for Method 1 and Method 2
             result = minimize(objective_function, initial_guesses, bounds=bounds)
@@ -535,14 +535,16 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
         df2 = pd.DataFrame(allresults2)
     
         # Save the results to a CSV file
-        df.to_csv('OutputMethod1.csv', index=False)
-        df2.to_csv('OutputMethod2.csv', index=False)
+        df.to_csv('7to10Method1.csv', index=False)
+        df2.to_csv('7to10Method2.csv', index=False)
 
 
 
 def main():
-    num_input_signals_list = [4, 4, 4, 8, 8, 5, 6, 6, 7, 6]
-    num_output_signals_list = [42, 42, 42, 168, 168, 147, 168, 168, 126, 168]
+    num_input_signals_list = [6, 6, 7, 6]
+    # num_input_signals_list = [4, 4, 4, 8, 8, 5, 6, 6, 7, 6]
+    # num_output_signals_list = [42, 42, 42, 168, 168, 147, 168, 168, 126, 168]
+    num_output_signals_list = [168, 168, 126, 168]
     
 
     result = perform_time_delay_estimation(data, num_input_signals_list, num_output_signals_list)
