@@ -47,23 +47,27 @@
 # target_delay = int(output_col.split('_')[0])
 # print(target_delay)
 
-import re
+# import re
 
-# Input string
-output_col = 'out1_12sec_shift_filt'
-# Regular expression pattern to extract the integer
-pattern = r'(\d+)sec'
+# # Input string
+# output_col = 'out1_12sec_shift_filt'
+# # Regular expression pattern to extract the integer
+# pattern = r'(\d+)sec'
 
-# Using re.search to find the first match of the pattern in the string
-match = re.search(pattern, output_col)
-integer_value = int(match.group(1))
-print(integer_value)
+# # Using re.search to find the first match of the pattern in the string
+# match = re.search(pattern, output_col)
+# integer_value = int(match.group(1))
+# print(integer_value)
 
-delay = [10, 3, 4, 6]
-target_delay = integer_value
+# delay = [10, 3, 4, 6]
+# target_delay = integer_value
 
-# Find the delay in the list that is closest to the target delay
-best_delay = min(delay, key=lambda x: abs(x - target_delay))
+# # Find the delay in the list that is closest to the target delay
+# best_delay = min(delay, key=lambda x: abs(x - target_delay))
 
-print("Best delay:", best_delay)
+# print("Best delay:", best_delay)
+
+
+
+
 
