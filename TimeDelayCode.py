@@ -1,4 +1,4 @@
-# #Import the neccessary python libraries for the Analysis
+# #Import the neccessary python libraries for the Time Delay Analysis
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
@@ -14,21 +14,21 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 from scipy.signal import correlate
 from scipy.optimize import minimize
+import re
 import warnings
 warnings.filterwarnings("ignore")
 
-
 data = [
-    
-    # 'cleaned_transformed_ds1.csv',
-    # 'cleaned_transformed_ds2.csv',
-    # 'cleaned_transformed_ds3.csv',
-    # 'cleaned_transformed_ds4.csv',
-    # 'cleaned_transformed_ds5.csv',
-    # 'cleaned_transformed_ds6.csv',
-    # 'cleaned_transformed_ds7.csv',
-    # 'cleaned_transformed_ds8.csv',
-    # 'cleaned_transformed_ds9.csv',
+
+    'cleaned_transformed_ds1.csv',
+    'cleaned_transformed_ds2.csv',
+    'cleaned_transformed_ds3.csv',
+    'cleaned_transformed_ds4.csv',
+    'cleaned_transformed_ds5.csv',
+    'cleaned_transformed_ds6.csv',
+    'cleaned_transformed_ds7.csv',
+    'cleaned_transformed_ds8.csv',
+    'cleaned_transformed_ds9.csv',
     'cleaned_transformed_ds10.csv',    
 ]
     
@@ -38,7 +38,7 @@ batchSize = int(lengthData / 2)
 
 def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output_signals_list):
     #Defining Parameters    
-    sampling_rate = 10  # The sampling rate between the input and output signals
+    sampling_rate = 1000  # The sampling rate between the input and output signals
     degree = 2  # Degree of the polynomial regression Model
     order = 2 # Order of ARX model
     allresults = []
@@ -224,7 +224,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
 
                 return cross_corr2
 
-            def find_time_delay2(input_signals, output_signal, sampling_rate = 600):
+            def find_time_delay2(input_signals, output_signal, sampling_rate):
                 input_signals_array = input_signals.to_numpy()
                 output_signal_array = output_signal.to_numpy().flatten()
 
@@ -395,7 +395,6 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     (estimated_Linear_time_delay - linear_regression_time_delay(input_signals, output_signal))**2,
                     (estimated_ARXtime_delay - arx_modeling_time_delay(input_signals, output_signal, order))**2
                 ]
-                
                 # Sum of scores, aiming to minimize the total score
                 return sum(squared_diff)
             
@@ -407,9 +406,8 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                     (estimated_time_delay_CrossCorr2 - find_time_delay2(input_signals, output_signal, sampling_rate))**2,
                     (estimated_time_delay_poly2 - polynomial_regression_time_delay2(input_signals, output_signal, degree))**2,
                     (estimated_linear_time_delay2 - linear_regression_time_delay2(input_signals, output_signal))**2,
-                    (estimated_arx_time_delay2 - arx_modeling_time_delay2(input_signals, output_signal, order=2))**2,
+                    (estimated_arx_time_delay2 - arx_modeling_time_delay2(input_signals, output_signal, order))**2,
                 ]
-                
                 # Sum of scores, aiming to minimize the total score
                 return np.sum(squared_diff2)
 
@@ -418,12 +416,12 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             initial_guesses2 = [1, 1, 1, 1]
 
             # Define bounds for the time delays (non-negative) for bothMethods
-            bounds = [(0, 10), (0, 10), (0, 10), (0, 10)]
-            bounds2 = [(0, 8.5), (0, 8.5), (0, 8.6), (0, 8.6)]
+            # bounds = [(0, 10), (0, 10), (0, 10), (0, 10)]
+            # bounds2 = [(0, 8), (0, 6, 8, 10), (0, 10), (0, 10)]
 
             # Minimize the objective function using SciPy for Method 1 and Method 2
-            result = minimize(objective_function, initial_guesses, bounds=bounds)
-            result2 = minimize(objective_function2, initial_guesses2, bounds=bounds2, method='Nelder-Mead')
+            result = minimize(objective_function, initial_guesses)
+            result2 = minimize(objective_function2, initial_guesses2, method='Nelder-Mead')
             # args=(input_signals, output_signal, sampling_rate, degree)
 
 
@@ -462,32 +460,18 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             lstm_time_delay_opt2 = lstm_time_delay2(input_signals, output_signal)
             optimal_delays2.append(lstm_time_delay_opt2)
 
-            print(f"Optimized Cross Correlation Time Delay Method1 : {estimated_CrossCorr_time_delay_opt} seconds")
-            print(f"Optimized Polynomial Regression Time Delay Method1: {estimated_Poly_time_delay_opt} seconds")
-            print(f"Optimized Linear Regression Time Delay Method1: {estimated_Linear_time_delay_opt} seconds")
-            print(f"Optimized ARX Modeling Time Delay Method1: {estimated_ARXtime_delay_opt} seconds")
-            print(f"Optimized LSTM Time Delay Method1: {lstm_time_delay_opt} seconds")
-            print()
-            print(f"Best Optimized Time Delay for Method 1: {[ 'Cross Correlation', 'Polynomial Regression', 'Linear Regression', 'ARX'][best_method_index_opt1]}")
-            print()
-            print()
-
-            print(f"Optimized Cross Correlation Time Delay Method2: {np.abs(estimated_CrossCorr_time_delay_opt2)} seconds")
-            print(f"Optimized Polynomial Regression Time Delay Method 2: {np.abs(estimated_Poly_time_delay_opt2)} seconds")
-            print(f"Optimized Linear Regression Time Delay Method 2: {np.abs(estimated_Linear_time_delay_opt2)} seconds")
-            print(f"Optimized ARX Modeling Time Delay Method 2: {np.abs(estimated_Arx_time_delay_opt2)} seconds")
-            print(f"Optimized LSTM Time Delay Method 2: {lstm_time_delay_opt2} seconds")
-            print()
-            print(f"Best Optimized Time Delay for Method 2: {[ 'Cross Correlation: ', 'Polynomial Regression: ', 'Linear Regression: ', 'ARX mode: '][best_method_index_opt2]}")
-            print('########################################################################################################################################################')
-
+            # Input string
+            # output_col_string = output_col
+            # # Regular expression pattern to extract the integer
+            # pattern = r'(\d+)sec'
+            # # Using re.search to find the first match of the pattern in the string
+            # match = re.search(pattern, output_col_string)
+            # integer_value = int(match.group(1))
+            # target_delay = integer_value
 
             results['Filename'] = file_path
             results['Input'] = input_columns
             results['Output'] = output_col
-
-            
-            # Store the results
             results['CrossCorr1'] = estimated_CrossCorr_time_delay_opt
             results['PolyRegre1'] = estimated_Poly_time_delay_opt
             results['LinRegre1'] = estimated_Linear_time_delay_opt
@@ -498,13 +482,13 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             methods1 = ['CrossCorr1', 'PolyRegre1', 'LinRegre1', 'ARXM1', 'LSTM1']
             time_delays1 = [estimated_CrossCorr_time_delay_opt, estimated_Poly_time_delay_opt,
                            estimated_Linear_time_delay_opt, estimated_ARXtime_delay_opt, lstm_time_delay_opt]
-            best_method_index1 = np.argmin(time_delays1)
-            best_method1 = methods1[best_method_index1]
-            best_delay1 = time_delays1[best_method_index1]
 
-            results['BestMethod1'] = best_method1
-            results['BestDelay1'] = best_delay1
-
+            # Find the delay in the list that is closest to the target delay
+            # best_delay1 = min(time_delays1, key=lambda x: abs(x - target_delay))
+            # best_method_index = time_delays1.index(best_delay1)
+            # best_method1 = methods1[best_method_index]            
+            # results['BestMethod1'] = best_method1
+            # results['BestDelay1'] = best_delay1
 
             results2['Filename'] = file_path
             results2['Input'] = input_columns
@@ -520,27 +504,47 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             methods2 = ['CrossCorr2', 'PolyRegre2', 'LinRegre2', 'ARXM2', 'LSTM2']
             time_delays2 = [estimated_CrossCorr_time_delay_opt2, estimated_Poly_time_delay_opt2,
                            estimated_Linear_time_delay_opt2, estimated_Arx_time_delay_opt2, lstm_time_delay_opt2]
-            best_method_index2 = np.argmin(time_delays2)
-            best_method2 = methods2[best_method_index2]
-            best_delay2 = time_delays1[best_method_index2]
-
-            results2['BestMethod2'] = best_method2
-            results2['BestDelay2'] = best_delay2
+            # Find the delay in the list that is closest to the target delay
+            # best_delay2 = min(time_delays2, key=lambda x: abs(x - target_delay))
+            # best_method_index2 = time_delays2.index(best_delay2)
+            # best_method2 = methods2[best_method_index2] 
+            # results2['BestMethod2'] = best_method2
+            # results2['BestDelay2'] = best_delay2
 
             allresults.append(results)
             allresults2.append(results2)
+
+            print(f"Optimized Cross Correlation Time Delay Method1 : {estimated_CrossCorr_time_delay_opt} seconds")
+            print(f"Optimized Polynomial Regression Time Delay Method1: {estimated_Poly_time_delay_opt} seconds")
+            print(f"Optimized Linear Regression Time Delay Method1: {estimated_Linear_time_delay_opt} seconds")
+            print(f"Optimized ARX Modeling Time Delay Method1: {estimated_ARXtime_delay_opt} seconds")
+            print(f"Optimized LSTM Time Delay Method1: {lstm_time_delay_opt} seconds")
+            print()
+            # print(f"Best Optimized Time Delay for Method 1: {[ 'Cross Correlation', 'Polynomial Regression', 'Linear Regression', 'ARX', 'LSTM Method: '][best_method_index]}")
+            print()
+            print()
+
+            print(f"Optimized Cross Correlation Time Delay Method2: {np.abs(estimated_CrossCorr_time_delay_opt2)} seconds")
+            print(f"Optimized Polynomial Regression Time Delay Method 2: {np.abs(estimated_Poly_time_delay_opt2)} seconds")
+            print(f"Optimized Linear Regression Time Delay Method 2: {np.abs(estimated_Linear_time_delay_opt2)} seconds")
+            print(f"Optimized ARX Modeling Time Delay Method 2: {np.abs(estimated_Arx_time_delay_opt2)} seconds")
+            print(f"Optimized LSTM Time Delay Method 2: {lstm_time_delay_opt2} seconds")
+            print()
+            # print(f"Best Optimized Time Delay for Method 2: {[ 'Cross Correlation: ', 'Polynomial Regression: ', 'Linear Regression: ', 'ARX method: ', 'LSTM Method: '][best_method_index2]}")
+            print('########################################################################################################################################################')
+
         
         # Convert the list of dictionaries to a DataFrame
         df = pd.DataFrame(allresults)
         df2 = pd.DataFrame(allresults2)
     
         # Save the results to a CSV file
-        df.to_csv('10Method1.csv', index=False)
-        df2.to_csv('10Method2.csv', index=False)
-
+        df.to_csv('Method1.csv', index=False)
+        df2.to_csv('Method2.csv', index=False)
 
 
 def main():
+
     num_input_signals_list = [4, 4, 4, 8, 8, 5, 6, 6, 7, 6]
     num_output_signals_list = [42, 42, 42, 168, 168, 147, 168, 168, 126, 168]
     
