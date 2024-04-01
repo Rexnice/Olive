@@ -20,13 +20,13 @@ warnings.filterwarnings("ignore")
 
 data = [
 
-    'cleaned_transformed_ds1.csv',
-    'cleaned_transformed_ds2.csv',
-    'cleaned_transformed_ds3.csv',
-    'cleaned_transformed_ds4.csv',
-    'cleaned_transformed_ds5.csv',
-    'cleaned_transformed_ds6.csv',
-    'cleaned_transformed_ds7.csv',
+    # 'cleaned_transformed_ds1.csv',
+    # 'cleaned_transformed_ds2.csv',
+    # 'cleaned_transformed_ds3.csv',
+    # 'cleaned_transformed_ds4.csv',
+    # 'cleaned_transformed_ds5.csv',
+    # 'cleaned_transformed_ds6.csv',
+    # 'cleaned_transformed_ds7.csv',
     'cleaned_transformed_ds8.csv',
     'cleaned_transformed_ds9.csv',
     'cleaned_transformed_ds10.csv',    
@@ -184,7 +184,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                 # Return the Maximum time delay across all channels
                 return np.argmax(time_delays)
 
-            def lstm_time_delay(input_signals, output_signal, epochs=1, batch_size=batchSize):
+            def lstm_time_delay(input_signals, output_signal, epochs=100, batch_size=batchSize):
                 # Normalize input and output data
                 scaler_input = MinMaxScaler(feature_range=(0, 1))
                 scaler_output = MinMaxScaler(feature_range=(0, 1))
@@ -199,7 +199,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                 model.add(LSTM(units=100, activation='relu', input_shape=(1, input_signals_scaled.shape[1])))
                 model.add(Dense(units=1))
                 model.compile(optimizer='adam', loss='mean_squared_error')
-                model.fit(input_signals_reshaped, output_signal_scaled, epochs=3, batch_size=batchSize, verbose=0)
+                model.fit(input_signals_reshaped, output_signal_scaled, epochs=4, batch_size=batchSize, verbose=0)
 
                 # Predict output using the trained model
                 predicted_output_scaled = model.predict(input_signals_reshaped)
@@ -342,7 +342,7 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
                 # Return the time delays for all channels
                 return time_delays
 
-            def lstm_time_delay2(input_signals, output_signal, epochs=1, batch_size=batchSize):
+            def lstm_time_delay2(input_signals, output_signal, epochs=100, batch_size=batchSize):
                 # Normalize input and output data
                 scaler_input = MinMaxScaler(feature_range=(0, 1))
                 scaler_output = MinMaxScaler(feature_range=(0, 1))
@@ -377,11 +377,11 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
             estimated_ARXtime_delay = arx_modeling_time_delay(input_signals, output_signal, order)
             estimated_LSTM = lstm_time_delay(input_signals, output_signal, epochs=2, batch_size=batchSize)
             
-            estimated_time_delay_CrossCorr2 = find_time_delay2(input_signals, output_signal, sampling_rate)
-            estimated_time_delay_poly2 = polynomial_regression_time_delay2(input_signals, output_signal, degree)
-            estimated_Linear_time_delay2 = linear_regression_time_delay2(input_signals, output_signal)
-            estimated_ARXtime_delay2 = arx_modeling_time_delay2(input_signals, output_signal, order)
-            estimated_LSTM2 = lstm_time_delay2(input_signals, output_signal, epochs=2, batch_size=batchSize)
+            estimated_time_delay_CrossCorr2 = np.argmax(find_time_delay2(input_signals, output_signal, sampling_rate))
+            estimated_time_delay_poly2 = np.argmax(polynomial_regression_time_delay2(input_signals, output_signal, degree))
+            estimated_Linear_time_delay2 = np.argmax(linear_regression_time_delay2(input_signals, output_signal))
+            estimated_ARXtime_delay2 = np.argmax(arx_modeling_time_delay2(input_signals, output_signal, order))
+            estimated_LSTM2 = np.argmax(lstm_time_delay2(input_signals, output_signal, epochs=2, batch_size=batchSize))
          
 
 
@@ -431,16 +431,15 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
 
             
             # Find the delay in the list that is closest to the target delay
-            best_delay1 = min(time_delays1, key=lambda x: abs(x - target_delay))
-            best_method_index = time_delays1.index(best_delay1)
-            best_method1 = methods1[best_method_index]            
-            results['BestMethod1'] = best_method1
-            results['BestDelay1'] = best_delay1
+            # best_delay1 = min(time_delays1, key=lambda x: abs(x - target_delay))
+            # best_method_index = time_delays1.index(best_delay1)
+            # best_method1 = methods1[best_method_index]            
+            # results['BestMethod1'] = best_method1
+            # results['BestDelay1'] = best_delay1
 
             results2['Filename'] = file_path
             results2['Input'] = input_columns
             results2['Output'] = output_col
-
             results2['CrossCorr2'] = estimated_time_delay_CrossCorr2
             results2['PolyRegre2'] = estimated_time_delay_poly2
             results2['LinRegre2'] = estimated_Linear_time_delay2
@@ -486,14 +485,16 @@ def perform_time_delay_estimation(file_paths, num_input_signals_list, num_output
         df2 = pd.DataFrame(allresults2)
     
         # Save the results to a CSV file
-        df.to_csv('BOptimization.csv', index=False)
-        df2.to_csv('Method2.csv', index=False)
+        df.to_csv('Code110.csv', index=False)
+        df2.to_csv('Code220.csv', index=False)
 
 
 def main():
 
-    num_input_signals_list = [4, 4, 4, 8, 8, 5, 6, 6, 7, 6]
-    num_output_signals_list = [42, 42, 42, 168, 168, 147, 168, 168, 126, 168]
+    num_input_signals_list = [ 6, 7, 6]
+    num_output_signals_list = [ 168, 126, 168]
+    # num_input_signals_list = [4, 4, 4, 8, 8, 5, 6, 6, 7, 6]
+    # num_output_signals_list = [42, 42, 42, 168, 168, 147, 168, 168, 126, 168]
     
     result = perform_time_delay_estimation(data, num_input_signals_list, num_output_signals_list)
     return result
