@@ -69,66 +69,107 @@
 
 
 
-# import matplotlib.pyplot as plt
-# import pandas as pd
-# import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
 
-# # Read the CSV file
-# df = pd.read_csv('TimeDelayMethod1.csv')
-
-
-# # Assuming df is your DataFrame containing 1245 rows
-# # iterations = df['Index'][:100]
+# Read the CSV file
+df = pd.read_csv('Modified_Before&AfterOpti2.csv')
 
 
-# mcrossCorr1 = df['CrossCorr1'][1199:1240]
-# polyMethod1 = df['PolyRegre1'][1199:1240]
-# linReg1 = df['LinRegre1'][1199:1240]
-# aRXM1 = df['ARXM1'][1199:1240]
-# lSTM1 = df['LSTM1'][1199:1240]
-# iterations = np.arange(1, len(mcrossCorr1) + 1)
-# iterations2 = np.arange(1, len(polyMethod1) + 1)
-# iterations3 = np.arange(1, len(linReg1) + 1)
-# iterations4 = np.arange(1, len(aRXM1) + 1)
-# iterations5 = np.arange(1, len(lSTM1) + 1)
+mcrossCorr1 = df['CC1'][420:462]
+Polyreg = df['PR1'][420:462]
+linreg = df['LR1'][420:462]
+arxm = df['AR1'][420:462]
+lstm = df['LM1'][420:462]
+
+iterations = np.arange(1, len(mcrossCorr1) + 1)
+iterations2 = np.arange(1, len(Polyreg) + 1)
+iterations3 = np.arange(1, len(linreg) + 1)
+iterations4 = np.arange(1, len(arxm) + 1)
+iterations5 = np.arange(1, len(lstm) + 1)
 
 
-# # plt.plot(iterations, mcrossCorr1)
 # plt.plot(iterations, mcrossCorr1)
-# plt.title('Cross Correlation Time Delay Plot')
-# plt.xlabel('signals')
-# plt.ylabel('Delay (s)')
-# plt.show()
-
-# plt.plot(iterations2, polyMethod1)
-# plt.title('Polynomial Regression Method Time Delay Plot')
-# plt.xlabel('signals')
-# plt.ylabel('Delay (s)')
-# plt.show()
-
-# plt.plot(iterations3, linReg1)
-# plt.title('Linear Regression Method Time Delay Plot')
-# plt.xlabel('signals')
-# plt.ylabel('Delay (s)')
-# plt.show()
-
-# plt.plot(iterations4, aRXM1)
-# plt.title('ARX Method Time Delay Plot')
-# plt.xlabel('signals')
-# plt.ylabel('Delay (s)')
-# plt.show()
-
-# plt.plot(iterations5, lSTM1)
-# plt.title('LSTM  Time Delay Plot')
-# plt.xlabel('signals')
-# plt.ylabel('Delay (s)')
-# plt.show()
+plt.plot(iterations, mcrossCorr1 , linestyle="-", color="black")
+plt.title("Cross correlation method Before Optimization (Output_signal_8)")
+plt.xlabel('signals')
+plt.ylabel('Delay (s)')
+plt.show()
 
 
+# plt.plot(iterations, mcrossCorr1)
+plt.plot(iterations2, Polyreg , linestyle="-", color="black")
+plt.title("Polynomial Regression method Before Optimization (Output_signal_8)")
+plt.xlabel('signals')
+plt.ylabel('Delay (s)')
+plt.show()
 
 
+# plt.plot(iterations, mcrossCorr1)
+plt.plot(iterations3, linreg , linestyle="-", color="black")
+plt.title("Linear Regression method Before Optimization (Output_signal_8)")
+plt.xlabel('signals')
+plt.ylabel('Delay (s)')
+plt.show()
 
 
+# plt.plot(iterations, mcrossCorr1)
+plt.plot(iterations4, arxm , linestyle="-", color="black")
+plt.title("ARX method Before Optimization (Output_signal_8)")
+plt.xlabel('signals')
+plt.ylabel('Delay (s)')
+plt.show()
+
+
+# plt.plot(iterations, mcrossCorr1)
+plt.plot(iterations5, lstm , linestyle="-", color="black")
+plt.title("LSTM method Before Optimization (Output_signal_8)")
+plt.xlabel('signals')
+plt.ylabel('Delay (s)')
+plt.show()
+
+
+"""
+# plt.plot(iterations, mcrossCorr1)
+plt.plot(iterations01, mcrossCorr0 , linestyle="-", color="black")
+plt.title("Cross correlation method After Optimization (Output_signal_3)")
+plt.xlabel('signals')
+plt.ylabel('Delay (s)')
+plt.show()
+
+
+# plt.plot(iterations, mcrossCorr1)
+plt.plot(iterations02, Polyreg01 , linestyle="-", color="black")
+plt.title("Polynomial Regression method After Optimization (Output_signal_3)")
+plt.xlabel('signals')
+plt.ylabel('Delay (s)')
+plt.show()
+
+
+# plt.plot(iterations, mcrossCorr1)
+plt.plot(iterations03, linreg02 , linestyle="-", color="black")
+plt.title("Linear Regression method After Optimization (Output_signal_3)")
+plt.xlabel('signals')
+plt.ylabel('Delay (s)')
+plt.show()
+
+
+# plt.plot(iterations, mcrossCorr1)
+plt.plot(iterations04, arxm03 , linestyle="-", color="black")
+plt.title("ARX method After Optimization (Output_signal_3)")
+plt.xlabel('signals')
+plt.ylabel('Delay (s)')
+plt.show()
+
+
+# plt.plot(iterations, mcrossCorr1)
+plt.plot(iterations05, lstm04 , linestyle="-", color="black")
+plt.title("LSTM method After Optimization (Output_signal_3)")
+plt.xlabel('signals')
+plt.ylabel('Delay (s)')
+plt.show()
+"""
 
 
 
@@ -203,96 +244,62 @@
 
 
 
-import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
+# import matplotlib.pyplot as plt
+# import pandas as pd
+# import numpy as np
 
-# Read the CSV file
-df = pd.read_csv('CrossCorr2_best_delays.csv')
-df2 = pd.read_csv('PolyRegre2_best_delays.csv')
-df3 = pd.read_csv('LinRegre2_best_delays.csv')
-df4 = pd.read_csv('ARXM2_best_delays.csv')
-# df5 = pd.read_csv('LSTM2_best_delays.csv')
-
-
-# Assuming df is your DataFrame containing 1245 rows
-# iterations = df['Index'][:100]
+# # Read the CSV file
+# df = pd.read_csv('CrossCorr1_delays_Before_Optimization.csv')
+# df2 = pd.read_csv('PolyRegre1_delays_Before_Optimization.csv')
+# df3 = pd.read_csv('LinRegre1_delays_Before_Optimization.csv')
+# df4 = pd.read_csv('ARXM1_delays_Before_Optimization.csv')
+# df5 = pd.read_csv('LSTM1_delays_Before_Optimization.csv')
 
 
-# mcrossCorr1 = df['BestDelay']
-# polyMethod1 = df2['BestDelay']
-# linReg1 = df3['BestDelay']
-# aRXM1 = df4['BestDelay']
-# # lSTM1 = df5['BestDelay']
+# # Assuming df is your DataFrame containing 1245 rows
+# # iterations = df['Index'][:100]
+
+
+# mcrossCorr1 = df['Delay']
+# polyMethod1 = df2['Delay']
+# linReg1 = df3['Delay']
+# aRXM1 = df4['Delay']
+# lSTM1 = df5['Delay']
 
 # iterations = list(range(1, len(mcrossCorr1) + 1))
 # iterations2 = list(range(1, len(polyMethod1) + 1))
 # iterations3 = np.arange(1, len(linReg1) + 1)
 # iterations4 = np.arange(1, len(aRXM1) + 1)
-# # iterations5 = np.arange(1, len(lSTM1) + 1)
+# iterations5 = np.arange(1, len(lSTM1) + 1)
 
 
 # # plt.plot(iterations, mcrossCorr1)
-# plt.plot(iterations, mcrossCorr1, color='blue', linestyle='-', linewidth=1.5)
-# plt.title('Cross Correlation Time Delay Plot')
-# plt.xlabel('signals')
-# plt.ylabel('Delay (s)')
-# plt.show()
-
-# plt.plot(iterations2, polyMethod1)
-# plt.title('Polynomial Regression Time Delay Plot')
-# plt.xlabel('signals')
-# plt.ylabel('Delay (s)')
-# plt.show()
-
-# plt.plot(iterations3, linReg1)
-# plt.title('Linear Regression Time Delay Plot')
-# plt.xlabel('signals')
-# plt.ylabel('Delay (s)')
-# plt.show()
-
-# plt.plot(iterations4, aRXM1)
-# plt.title('ARXM Time Delay Plot')
-# plt.xlabel('signals')
-# plt.ylabel('Delay (s)')
-# plt.show()
-
-# plt.plot(iterations5, lSTM1)
-# plt.title('LSTM Time Delay Plot')
+# plt.plot(iterations, mcrossCorr1, color='black', linestyle='-', linewidth=1.5)
 # plt.xlabel('signals')
 # plt.ylabel('Delay (s)')
 # plt.show()
 
 
-# species = ("Method1", "Method2")
-# percentage_delays = {
-#     'Cross Corr': (25.1, 45.7),
-#     'Poly Regre.': (39.3, 28.65),
-#     'Linear Regre.': (18.7, 17.43),
-#     'ARXM': (14.3, 8.77),
-#     'LSTM': (2.6 ,0)
-# }
-
-# x = np.arange(len(species))  # the label locations
-# width = 0.18  # the width of the bars
-# multiplier = 0
-
-# fig, ax = plt.subplots(layout='constrained')
-
-# for attribute, measurement in percentage_delays.items():
-#     offset = width * multiplier
-#     rects = ax.bar(x + offset, measurement, width, label=attribute)
-#     ax.bar_label(rects, padding=3)
-#     multiplier += 1
-
-# # Add some text for labels, title and custom x-axis tick labels, etc.
-# ax.set_ylabel('Percentage (%)')
-# # ax.set_title('Performance of each solution for accurate time delay estimation')
-# ax.set_xticks(x + width, species)
-# ax.legend(loc='upper left', ncols=2)
-# ax.set_ylim(0, 100)
-
+# plt.plot(iterations2, polyMethod1 , color='black', linestyle='-', linewidth=1.5)
+# plt.xlabel('signals')
+# plt.ylabel('Delay (s)')
 # plt.show()
+
+# plt.plot(iterations3, linReg1, color='black', linestyle='-', linewidth=1.5)
+# plt.xlabel('signals')
+# plt.ylabel('Delay (s)')
+# plt.show()
+
+# plt.plot(iterations4, aRXM1, color='black', linestyle='-', linewidth=1.5)
+# plt.xlabel('signals')
+# plt.ylabel('Delay (s)')
+# plt.show()
+
+# plt.plot(iterations5, lSTM1, color='black', linestyle='-', linewidth=1.5)
+# plt.xlabel('signals')
+# plt.ylabel('Delay (s)')
+# plt.show()
+
 
 
 
